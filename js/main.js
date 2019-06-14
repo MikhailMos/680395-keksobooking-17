@@ -31,17 +31,23 @@ var getTemplatePin = function (mapPin) {
   return userPinElement;
 };
 
-var pins = [];
+var getPinsTemplate = function () {
+  var pins = [];
+  var fragment = document.createDocumentFragment();
+
+  for (var i = 1; i <= ARR_LENGTH; i++) {
+    pins.push(new Pin(i));
+    fragment.appendChild(getTemplatePin(pins[i - 1]));
+  }
+
+  return fragment;
+};
+
 var map = document.querySelector('.map__pins');
 var widthMapPins = map.offsetWidth;
 var userPin = document.querySelector('#pin').content.querySelector('.map__pin');
-var fragment = document.createDocumentFragment();
-
-for (var i = 1; i <= ARR_LENGTH; i++) {
-  pins.push(new Pin(i));
-  fragment.appendChild(getTemplatePin(pins[i - 1]));
-}
-
-map.appendChild(fragment);
 
 document.querySelector('.map').classList.remove('map--faded');
+map.appendChild(getPinsTemplate());
+
+
