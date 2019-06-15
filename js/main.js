@@ -46,8 +46,26 @@ var getPinsTemplate = function () {
 var map = document.querySelector('.map__pins');
 var widthMapPins = map.offsetWidth;
 var userPin = document.querySelector('#pin').content.querySelector('.map__pin');
+// для присвоения disabled
+var adForm = document.querySelector('.ad-form');
+var fieldsetsAdForm = adForm.querySelectorAll('fieldset');
+var mapFilters = document.querySelector('.map__filters');
+var selectsMapFilters = mapFilters.querySelectorAll('select');
+var fieldsetsMapFilters = mapFilters.querySelectorAll('fieldset');
 
-document.querySelector('.map').classList.remove('map--faded');
-map.appendChild(getPinsTemplate());
+selectsMapFilters.forEach(function (item) {
+  item.disabled = true;
+});
+
+fieldsetsMapFilters.forEach(function (item) {
+  item.disabled = true;
+});
+
+fieldsetsAdForm.forEach(function (item) {
+  item.disabled = true;
+});
+
+// document.querySelector('.map').classList.remove('map--faded');
+// map.appendChild(getPinsTemplate());
 
 
