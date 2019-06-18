@@ -5,6 +5,8 @@ var Y_MIN = 130;
 var Y_MAX = 630;
 var MAP_PIN_WIDTH = 50;
 var MAP_PIN_HEIGHT = 70;
+var MAIN_PIN_WIDTH = 65;
+var MAIN_PIN_HEIGHT = 84;
 var PATH_TO_IMG = 'img/avatars/user';
 var TYPE_OF_PLACE = ['palace', 'flat', 'house', 'bungalo'];
 
@@ -32,40 +34,49 @@ var getTemplatePin = function (mapPin) {
 };
 
 var getPinsTemplate = function () {
-  var pins = [];
   var fragment = document.createDocumentFragment();
 
   for (var i = 1; i <= ARR_LENGTH; i++) {
-    pins.push(new Pin(i));
-    fragment.appendChild(getTemplatePin(pins[i - 1]));
+    fragment.appendChild(getTemplatePin(new Pin(i)));
   }
 
   return fragment;
 };
 
+var getProperty = function (item) {
+  item.disabled = this.flag;
+};
+
 var map = document.querySelector('.map__pins');
+var mapPinMain = map.querySelector('.map__pin--main');
 var widthMapPins = map.offsetWidth;
 var userPin = document.querySelector('#pin').content.querySelector('.map__pin');
-// для присвоения disabled
+// для присвоения для свойства disabled
 var adForm = document.querySelector('.ad-form');
 var fieldsetsAdForm = adForm.querySelectorAll('fieldset');
 var mapFilters = document.querySelector('.map__filters');
 var selectsMapFilters = mapFilters.querySelectorAll('select');
 var fieldsetsMapFilters = mapFilters.querySelectorAll('fieldset');
+var address = adForm.querySelector('#address');
 
-selectsMapFilters.forEach(function (item) {
-  item.disabled = true;
+// не активное состояние
+address.value = String(mapPinMain.offsetLeft) + ', ' + String(mapPinMain.offsetTop);
+selectsMapFilters.forEach(getProperty, {flag: true});
+fieldsetsMapFilters.forEach(getProperty, {flag: true});
+fieldsetsAdForm.forEach(getProperty, {flag: true});
+
+mapPinMain.addEventListener('click', function () {
+  document.querySelector('.map').classList.remove('map--faded');
+  map.appendChild(getPinsTemplate());
+
+  // активное состояние
+  adForm.classList.remove('ad-form--disabled');
+  selectsMapFilters.forEach(getProperty, {flag: false});
+  fieldsetsMapFilters.forEach(getProperty, {flag: false});
+  fieldsetsAdForm.forEach(getProperty, {flag: false});
 });
 
-fieldsetsMapFilters.forEach(function (item) {
-  item.disabled = true;
+mapPinMain.addEventListener('mouseup', function () {
+  address.value = String(mapPinMain.offsetLeft + Math.round(MAIN_PIN_WIDTH / 2)) + ', ' + String(mapPinMain.offsetTop + MAIN_PIN_HEIGHT);
 });
-
-fieldsetsAdForm.forEach(function (item) {
-  item.disabled = true;
-});
-
-// document.querySelector('.map').classList.remove('map--faded');
-// map.appendChild(getPinsTemplate());
-
 
