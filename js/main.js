@@ -56,6 +56,10 @@ var onMapPinMainClick = function () {
     adForm.classList.remove('ad-form--disabled');
     enumeratesArray();
     isOpened = true;
+
+    // на кнопку Очистить
+    adFormReset.addEventListener('click', onResetClick);
+    adFormReset.addEventListener('keydown', onResetClick);
   }
 };
 
@@ -74,6 +78,9 @@ var onResetClick = function () {
     isOpened = false;
     adForm.classList.add('ad-form--disabled');
     document.querySelector('.map').classList.add('map--faded');
+
+    adFormReset.removeEventListener('click', onResetClick);
+    adFormReset.removeEventListener('keydown', onResetClick);
   }
 };
 
@@ -109,6 +116,3 @@ mapPinMain.addEventListener('click', onMapPinMainClick);
 mapPinMain.addEventListener('mouseup', function () {
   address.value = String(mapPinMain.offsetLeft + Math.round(MAIN_PIN_WIDTH / 2)) + ', ' + String(mapPinMain.offsetTop + MAIN_PIN_HEIGHT);
 });
-
-adFormReset.addEventListener('click', onResetClick);
-adFormReset.addEventListener('keydown', onResetClick);
