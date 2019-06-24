@@ -47,6 +47,31 @@ var getProperty = function (item) {
   item.disabled = isOpened;
 };
 
+var getMinValuePrice = function () {
+  if (typeOfHousing.value === 'palace') {
+    return 10000;
+  } else if (typeOfHousing.value === 'house') {
+    return 5000;
+  } else if (typeOfHousing.value === 'flat') {
+    return 1000;
+  } else {
+    return 0;
+  }
+};
+
+var onTypeOfHousingChange = function () {
+  price.min = getMinValuePrice();
+  price.placeholder = String(price.min);
+};
+
+var onTimeInOutChange = function (evt) {
+  if (evt.target.name === timein.name) {
+    timeout.selectedIndex = timein.selectedIndex;
+  } else {
+    timein.selectedIndex = timeout.selectedIndex;
+  }
+};
+
 var onMapPinMainClick = function () {
   if (!isOpened) {
     document.querySelector('.map').classList.remove('map--faded');
@@ -54,9 +79,14 @@ var onMapPinMainClick = function () {
 
     // активное состояние
     adForm.classList.remove('ad-form--disabled');
+    price.min = getMinValuePrice();
+    price.placeholder = String(price.min);
     enumeratesArray();
     isOpened = true;
 
+    typeOfHousing.addEventListener('change', onTypeOfHousingChange);
+    timein.addEventListener('change', onTimeInOutChange);
+    timeout.addEventListener('change', onTimeInOutChange);
     // на кнопку Очистить
     adFormReset.addEventListener('click', onResetClick);
     adFormReset.addEventListener('keydown', onResetClick);
@@ -81,6 +111,9 @@ var onResetClick = function () {
 
     adFormReset.removeEventListener('click', onResetClick);
     adFormReset.removeEventListener('keydown', onResetClick);
+    typeOfHousing.removeEventListener('change', onTypeOfHousingChange);
+    timein.removeEventListener('change', onTimeInOutChange);
+    timeout.removeEventListener('change', onTimeInOutChange);
   }
 };
 
@@ -103,16 +136,20 @@ var mapFilters = document.querySelector('.map__filters');
 var selectsMapFilters = mapFilters.querySelectorAll('select');
 var fieldsetsMapFilters = mapFilters.querySelectorAll('fieldset');
 var address = adForm.querySelector('#address');
+var typeOfHousing = adForm.querySelector('#type');
+var price = adForm.querySelector('#price');
+var timein = adForm.querySelector('#timein');
+var timeout = adForm.querySelector('#timeout');
 
 if (isOpened) {
   // не активное состояние
   address.value = String(mapPinMain.offsetLeft) + ', ' + String(mapPinMain.offsetTop);
+  onTypeOfHousingChange();
   enumeratesArray();
   isOpened = false;
 }
 
 mapPinMain.addEventListener('click', onMapPinMainClick);
-
 mapPinMain.addEventListener('mouseup', function () {
   address.value = String(mapPinMain.offsetLeft + Math.round(MAIN_PIN_WIDTH / 2)) + ', ' + String(mapPinMain.offsetTop + MAIN_PIN_HEIGHT);
 });
