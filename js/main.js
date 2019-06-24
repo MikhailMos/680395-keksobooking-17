@@ -48,16 +48,15 @@ var getProperty = function (item) {
 };
 
 var getMinValuePrice = function () {
-  var result = 0;
-  if (typeOfHousing.selectedIndex === 1) {
-    result = 1000;
-  } else if (typeOfHousing.selectedIndex === 2) {
-    result = 5000;
+  if (typeOfHousing.value === 'palace') {
+    return 10000;
+  } else if (typeOfHousing.value === 'house') {
+    return 5000;
+  } else if (typeOfHousing.value === 'flat') {
+    return 1000;
   } else {
-    result = 10000;
+    return 0;
   }
-
-  return result;
 };
 
 var onTypeOfHousingChange = function () {
@@ -141,8 +140,6 @@ var typeOfHousing = adForm.querySelector('#type');
 var price = adForm.querySelector('#price');
 var timein = adForm.querySelector('#timein');
 var timeout = adForm.querySelector('#timeout');
-// var roomNumber = adForm.querySelector('#room_number');
-// var capacity = adForm.querySelector('#capacity');
 
 if (isOpened) {
   // не активное состояние
