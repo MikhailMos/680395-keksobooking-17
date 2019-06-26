@@ -6,7 +6,7 @@ var Y_MAX = 630;
 var MAP_PIN_WIDTH = 50;
 var MAP_PIN_HEIGHT = 70;
 var MAIN_PIN_WIDTH = 65;
-var MAIN_PIN_HEIGHT = 84;
+var MAIN_PIN_HEIGHT = 80;
 var PATH_TO_IMG = 'img/avatars/user';
 var TYPE_OF_PLACE = ['palace', 'flat', 'house', 'bungalo'];
 
@@ -59,9 +59,19 @@ var getMinValuePrice = function () {
   }
 };
 
+var getResultX = function (currentCoord) {
+  if (currentCoord > (map.offsetWidth - (MAIN_PIN_WIDTH / 2))) {
+    return (map.offsetWidth - (MAIN_PIN_WIDTH / 2));
+  } else if (currentCoord < (-(MAIN_PIN_WIDTH / 2))) {
+    return -(MAIN_PIN_WIDTH / 2);
+  }
+
+  return currentCoord;
+};
+
 var getResultY = function (currentCoord) {
-  if (currentCoord < Y_MIN) {
-    return Y_MIN;
+  if (currentCoord < (Y_MIN - MAIN_PIN_HEIGHT)) {
+    return (Y_MIN - MAIN_PIN_HEIGHT);
   } else if (currentCoord > Y_MAX) {
     return Y_MAX;
   }
@@ -125,7 +135,7 @@ var onMapPinMainMousedown = function (evt) {
       };
 
       mapPinMain.style.top = getResultY(mapPinMain.offsetTop - shift.y) + 'px';
-      mapPinMain.style.left = (mapPinMain.offsetLeft - shift.x) + 'px';
+      mapPinMain.style.left = getResultX(mapPinMain.offsetLeft - shift.x) + 'px';
       address.value = String(mapPinMain.offsetLeft + hafeWidthMapPinMain) + ', ' + String(mapPinMain.offsetTop + MAIN_PIN_HEIGHT);
     };
 
