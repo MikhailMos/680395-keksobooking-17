@@ -59,6 +59,16 @@ var getMinValuePrice = function () {
   }
 };
 
+var getResultY = function (currentCoord) {
+  if (currentCoord < Y_MIN) {
+    return Y_MIN;
+  } else if (currentCoord > Y_MAX) {
+    return Y_MAX;
+  }
+
+  return currentCoord;
+};
+
 var onTypeOfHousingChange = function () {
   price.min = getMinValuePrice();
   price.placeholder = String(price.min);
@@ -72,15 +82,23 @@ var onTimeInOutChange = function (evt) {
   }
 };
 
-var onMapPinMainClick = function () {
+var onMapPinMainMousedown = function (evt) {
+  evt.preventDefault();
+
   if (!isOpened) {
+
     document.querySelector('.map').classList.remove('map--faded');
     map.appendChild(getPinsTemplate());
 
+    if ((defaultCoordsPinMain.x === 0) && (defaultCoordsPinMain.y === 0)) {
+      defaultCoordsPinMain.x = mapPinMain.offsetLeft;
+      defaultCoordsPinMain.y = mapPinMain.offsetTop;
+    }
     // активное состояние
     adForm.classList.remove('ad-form--disabled');
     price.min = getMinValuePrice();
     price.placeholder = String(price.min);
+    address.value = String(mapPinMain.offsetLeft + hafeWidthMapPinMain) + ', ' + String(mapPinMain.offsetTop + MAIN_PIN_HEIGHT);
     enumeratesArray();
     isOpened = true;
 
@@ -90,6 +108,44 @@ var onMapPinMainClick = function () {
     // на кнопку Очистить
     adFormReset.addEventListener('click', onResetClick);
     adFormReset.addEventListener('keydown', onResetClick);
+
+  } else {
+
+    var onMouseMove = function (moveEvt) {
+      moveEvt.preventDefault();
+
+      var shift = {
+        x: startCoords.x - moveEvt.clientX,
+        y: startCoords.y - moveEvt.clientY
+      };
+
+      startCoords = {
+        x: moveEvt.clientX,
+        y: moveEvt.clientY
+      };
+
+      mapPinMain.style.top = getResultY(mapPinMain.offsetTop - shift.y) + 'px';
+      mapPinMain.style.left = (mapPinMain.offsetLeft - shift.x) + 'px';
+      address.value = String(mapPinMain.offsetLeft + hafeWidthMapPinMain) + ', ' + String(mapPinMain.offsetTop + MAIN_PIN_HEIGHT);
+    };
+
+    var onMouseUp = function (upEvt) {
+      upEvt.preventDefault();
+
+      // address.value = String(mapPinMain.offsetLeft + hafeWidthMapPinMain) + ', ' + String(mapPinMain.offsetTop + MAIN_PIN_HEIGHT);
+
+      map.removeEventListener('mousemove', onMouseMove);
+      map.removeEventListener('mouseup', onMouseUp);
+    };
+
+    var startCoords = {
+      x: evt.clientX,
+      y: evt.clientY
+    };
+
+    // перемещение главного маркера
+    map.addEventListener('mousemove', onMouseMove);
+    map.addEventListener('mouseup', onMouseUp);
   }
 };
 
@@ -100,6 +156,9 @@ var onResetClick = function () {
     mapPins.forEach(function (item) {
       if (!item.classList.contains('map__pin--main')) {
         map.removeChild(item);
+      } else {
+        item.style.top = defaultCoordsPinMain.y + 'px';
+        item.style.left = defaultCoordsPinMain.x + 'px';
       }
     });
     // не активное состояние
@@ -126,6 +185,11 @@ var enumeratesArray = function () {
 var isOpened = true;
 var map = document.querySelector('.map__pins');
 var mapPinMain = map.querySelector('.map__pin--main');
+var hafeWidthMapPinMain = Math.round(MAIN_PIN_WIDTH / 2);
+var defaultCoordsPinMain = {
+  x: 0,
+  y: 0
+};
 var widthMapPins = map.offsetWidth;
 var userPin = document.querySelector('#pin').content.querySelector('.map__pin');
 // для присвоения для свойства disabled
@@ -149,7 +213,5 @@ if (isOpened) {
   isOpened = false;
 }
 
-mapPinMain.addEventListener('click', onMapPinMainClick);
-mapPinMain.addEventListener('mouseup', function () {
-  address.value = String(mapPinMain.offsetLeft + Math.round(MAIN_PIN_WIDTH / 2)) + ', ' + String(mapPinMain.offsetTop + MAIN_PIN_HEIGHT);
-});
+mapPinMain.addEventListener('mousedown', onMapPinMainMousedown);
+
