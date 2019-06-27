@@ -142,8 +142,6 @@ var onMapPinMainMousedown = function (evt) {
     var onMouseUp = function (upEvt) {
       upEvt.preventDefault();
 
-      // address.value = String(mapPinMain.offsetLeft + hafeWidthMapPinMain) + ', ' + String(mapPinMain.offsetTop + MAIN_PIN_HEIGHT);
-
       map.removeEventListener('mousemove', onMouseMove);
       map.removeEventListener('mouseup', onMouseUp);
     };
