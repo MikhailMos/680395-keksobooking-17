@@ -1,63 +1,10 @@
 'use strict';
 
-var ARR_LENGTH = 8;
+// map.js
 var Y_MIN = 130;
 var Y_MAX = 630;
-var MAP_PIN_WIDTH = 50;
-var MAP_PIN_HEIGHT = 70;
 var MAIN_PIN_WIDTH = 65;
 var MAIN_PIN_HEIGHT = 80;
-var PATH_TO_IMG = 'img/avatars/user';
-var TYPE_OF_PLACE = ['palace', 'flat', 'house', 'bungalo'];
-
-var getRandomInt = function (min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
-};
-
-var Pin = function (index) {
-  this.author = {'avatar': PATH_TO_IMG + '0' + index + '.png'};
-  this.offer = {'type': TYPE_OF_PLACE[getRandomInt(0, TYPE_OF_PLACE.length)]};
-  this.location = {'x': getRandomInt(0, widthMapPins), 'y': getRandomInt(Y_MIN, Y_MAX)};
-};
-
-var getTemplatePin = function (mapPin) {
-  var userPinElement = userPin.cloneNode(true);
-  var imgPin = userPinElement.querySelector('img');
-
-  userPinElement.style.left = String(mapPin.location.x - (MAP_PIN_WIDTH / 2)) + 'px';
-  userPinElement.style.top = String(mapPin.location.y - MAP_PIN_HEIGHT) + 'px';
-
-  imgPin.src = mapPin.author.avatar;
-  imgPin.alt = 'Тут могла бы быть Ваша реклама';
-
-  return userPinElement;
-};
-
-var getPinsTemplate = function () {
-  var fragment = document.createDocumentFragment();
-
-  for (var i = 1; i <= ARR_LENGTH; i++) {
-    fragment.appendChild(getTemplatePin(new Pin(i)));
-  }
-
-  return fragment;
-};
-
-var getProperty = function (item) {
-  item.disabled = isOpened;
-};
-
-var getMinValuePrice = function () {
-  if (typeOfHousing.value === 'palace') {
-    return 10000;
-  } else if (typeOfHousing.value === 'house') {
-    return 5000;
-  } else if (typeOfHousing.value === 'flat') {
-    return 1000;
-  } else {
-    return 0;
-  }
-};
 
 var getResultX = function (currentCoord) {
   if (currentCoord > (map.offsetWidth - (MAIN_PIN_WIDTH / 2))) {
@@ -79,26 +26,13 @@ var getResultY = function (currentCoord) {
   return currentCoord;
 };
 
-var onTypeOfHousingChange = function () {
-  price.min = getMinValuePrice();
-  price.placeholder = String(price.min);
-};
-
-var onTimeInOutChange = function (evt) {
-  if (evt.target.name === timein.name) {
-    timeout.selectedIndex = timein.selectedIndex;
-  } else {
-    timein.selectedIndex = timeout.selectedIndex;
-  }
-};
-
 var onMapPinMainMousedown = function (evt) {
   evt.preventDefault();
 
-  if (!isOpened) {
+  if (!window.utils.isOpened) {
 
     document.querySelector('.map').classList.remove('map--faded');
-    map.appendChild(getPinsTemplate());
+    map.appendChild(window.pin.getPinsTemplate());
 
     if ((defaultCoordsPinMain.x === 0) && (defaultCoordsPinMain.y === 0)) {
       defaultCoordsPinMain.x = mapPinMain.offsetLeft;
@@ -108,9 +42,9 @@ var onMapPinMainMousedown = function (evt) {
     adForm.classList.remove('ad-form--disabled');
     price.min = getMinValuePrice();
     price.placeholder = String(price.min);
-    address.value = String(mapPinMain.offsetLeft + hafeWidthMapPinMain) + ', ' + String(mapPinMain.offsetTop + MAIN_PIN_HEIGHT);
-    enumeratesArray();
-    isOpened = true;
+    address.value = String(mapPinMain.offsetLeft + halfWidthMapPinMain) + ', ' + String(mapPinMain.offsetTop + MAIN_PIN_HEIGHT);
+    window.pin.enumeratesArray();
+    window.utils.isOpened = true;
 
     typeOfHousing.addEventListener('change', onTypeOfHousingChange);
     timein.addEventListener('change', onTimeInOutChange);
@@ -136,7 +70,7 @@ var onMapPinMainMousedown = function (evt) {
 
       mapPinMain.style.top = getResultY(mapPinMain.offsetTop - shift.y) + 'px';
       mapPinMain.style.left = getResultX(mapPinMain.offsetLeft - shift.x) + 'px';
-      address.value = String(mapPinMain.offsetLeft + hafeWidthMapPinMain) + ', ' + String(mapPinMain.offsetTop + MAIN_PIN_HEIGHT);
+      address.value = String(mapPinMain.offsetLeft + halfWidthMapPinMain) + ', ' + String(mapPinMain.offsetTop + MAIN_PIN_HEIGHT);
     };
 
     var onMouseUp = function (upEvt) {
@@ -158,7 +92,7 @@ var onMapPinMainMousedown = function (evt) {
 };
 
 var onResetClick = function () {
-  if (isOpened) {
+  if (window.utils.isOpened) {
     // удаляем метки
     var mapPins = map.querySelectorAll('.map__pin');
     mapPins.forEach(function (item) {
@@ -171,8 +105,8 @@ var onResetClick = function () {
     });
     // не активное состояние
     address.value = String(mapPinMain.offsetLeft) + ', ' + String(mapPinMain.offsetTop);
-    enumeratesArray();
-    isOpened = false;
+    window.pin.enumeratesArray();
+    window.utils.isOpened = false;
     adForm.classList.add('ad-form--disabled');
     document.querySelector('.map').classList.add('map--faded');
 
@@ -184,22 +118,95 @@ var onResetClick = function () {
   }
 };
 
-var enumeratesArray = function () {
-  selectsMapFilters.forEach(getProperty);
-  fieldsetsMapFilters.forEach(getProperty);
-  fieldsetsAdForm.forEach(getProperty);
-};
-
-var isOpened = true;
+// var isOpened = true;
 var map = document.querySelector('.map__pins');
 var mapPinMain = map.querySelector('.map__pin--main');
-var hafeWidthMapPinMain = Math.round(MAIN_PIN_WIDTH / 2);
+var halfWidthMapPinMain = Math.round(MAIN_PIN_WIDTH / 2);
 var defaultCoordsPinMain = {
   x: 0,
   y: 0
 };
-var widthMapPins = map.offsetWidth;
-var userPin = document.querySelector('#pin').content.querySelector('.map__pin');
+
+mapPinMain.addEventListener('mousedown', onMapPinMainMousedown);
+
+// pin.js
+(function () {
+  var PATH_TO_IMG = 'img/avatars/user';
+  var TYPE_OF_PLACE = ['palace', 'flat', 'house', 'bungalo'];
+  var MAP_PIN_WIDTH = 50;
+  var MAP_PIN_HEIGHT = 70;
+  var ARR_LENGTH = 8;
+
+  var Pin = function (index) {
+    this.author = {'avatar': PATH_TO_IMG + '0' + index + '.png'};
+    this.offer = {'type': TYPE_OF_PLACE[window.utils.getRandomInt(0, TYPE_OF_PLACE.length)]};
+    this.location = {'x': window.utils.getRandomInt(0, widthMapPins), 'y': window.utils.getRandomInt(Y_MIN, Y_MAX)};
+  };
+
+  var getTemplatePin = function (mapPin) {
+    var userPinElement = userPin.cloneNode(true);
+    var imgPin = userPinElement.querySelector('img');
+
+    userPinElement.style.left = String(mapPin.location.x - (MAP_PIN_WIDTH / 2)) + 'px';
+    userPinElement.style.top = String(mapPin.location.y - MAP_PIN_HEIGHT) + 'px';
+
+    imgPin.src = mapPin.author.avatar;
+    imgPin.alt = 'Тут могла бы быть Ваша реклама';
+
+    return userPinElement;
+  };
+
+  var getProperty = function (item) {
+    item.disabled = window.utils.isOpened;
+  };
+
+  window.pin = {
+    enumeratesArray: function () {
+      selectsMapFilters.forEach(getProperty);
+      fieldsetsMapFilters.forEach(getProperty);
+      fieldsetsAdForm.forEach(getProperty);
+    },
+    getPinsTemplate: function () {
+      var fragment = document.createDocumentFragment();
+      for (var i = 1; i <= ARR_LENGTH; i++) {
+        fragment.appendChild(getTemplatePin(new Pin(i)));
+      }
+      return fragment;
+    }
+  };
+
+  var widthMapPins = document.querySelector('.map__pins').offsetWidth;
+  var userPin = document.querySelector('#pin').content.querySelector('.map__pin');
+})();
+
+
+// form.js
+
+var getMinValuePrice = function () {
+  if (typeOfHousing.value === 'palace') {
+    return 10000;
+  } else if (typeOfHousing.value === 'house') {
+    return 5000;
+  } else if (typeOfHousing.value === 'flat') {
+    return 1000;
+  } else {
+    return 0;
+  }
+};
+
+var onTypeOfHousingChange = function () {
+  price.min = getMinValuePrice();
+  price.placeholder = String(price.min);
+};
+
+var onTimeInOutChange = function (evt) {
+  if (evt.target.name === timein.name) {
+    timeout.selectedIndex = timein.selectedIndex;
+  } else {
+    timein.selectedIndex = timeout.selectedIndex;
+  }
+};
+
 // для присвоения для свойства disabled
 var adForm = document.querySelector('.ad-form');
 var adFormReset = adForm.querySelector('.ad-form__reset');
@@ -213,13 +220,11 @@ var price = adForm.querySelector('#price');
 var timein = adForm.querySelector('#timein');
 var timeout = adForm.querySelector('#timeout');
 
-if (isOpened) {
+if (window.utils.isOpened) {
   // не активное состояние
   address.value = String(mapPinMain.offsetLeft) + ', ' + String(mapPinMain.offsetTop);
   onTypeOfHousingChange();
-  enumeratesArray();
-  isOpened = false;
+  window.pin.enumeratesArray();
+  window.utils.isOpened = false;
 }
-
-mapPinMain.addEventListener('mousedown', onMapPinMainMousedown);
 
