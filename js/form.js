@@ -6,7 +6,7 @@
    *
    * @return {number}
    */
-  var getMinValuePrice = function () {
+  var transfer = function () {
     if (typeOfHousing.value === 'palace') {
       return 10000;
     } else if (typeOfHousing.value === 'house') {
@@ -35,7 +35,7 @@
     adFormReset: adFormReset,
     fieldsetsAdForm: fieldsetsAdForm,
     onTypeOfHousingChange: function () {
-      price.min = getMinValuePrice();
+      price.min = transfer();
       price.placeholder = String(price.min);
     }
   };
