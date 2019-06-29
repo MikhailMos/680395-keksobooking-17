@@ -1,7 +1,11 @@
 'use strict';
 
 (function () {
-
+  /**
+   * возвращает минимальную цену
+   *
+   * @return {number}
+   */
   var getMinValuePrice = function () {
     if (typeOfHousing.value === 'palace') {
       return 10000;
@@ -14,7 +18,9 @@
     }
   };
 
-  // для присвоения для свойства disabled
+  /**
+   * для присвоения для свойства disabled
+   */
   var adForm = document.querySelector('.ad-form');
   var adFormReset = adForm.querySelector('.ad-form__reset');
   var address = adForm.querySelector('#address');
@@ -34,10 +40,8 @@
     }
   };
 
-  if (!window.utils.isOpened) {
-    // не активное состояние
+  if (!window.utils.isActive) {
     window.form.onTypeOfHousingChange();
-    window.utils.enumeratesArray(fieldsetsAdForm);
   }
 
 })();
