@@ -15,6 +15,23 @@
     }
   };
 
+  var addEventListenerFunctions = function () {
+    window.form.typeOfHousing.addEventListener('change', window.form.onTypeOfHousingChange);
+    timein.addEventListener('change', onTimeInOutChange);
+    timeout.addEventListener('change', onTimeInOutChange);
+    // на кнопку Очистить
+    window.form.adFormReset.addEventListener('click', onResetClick);
+    window.form.adFormReset.addEventListener('keydown', onResetKeydown);
+  };
+
+  var removeEventListenerFunctions = function () {
+    window.form.adFormReset.removeEventListener('click', onResetClick);
+    window.form.adFormReset.removeEventListener('keydown', onResetKeydown);
+    window.form.typeOfHousing.removeEventListener('change', window.form.onTypeOfHousingChange);
+    timein.removeEventListener('change', onTimeInOutChange);
+    timeout.removeEventListener('change', onTimeInOutChange);
+  };
+
   /**
    * Событие нажатия кнопки мыши на основном пине
    *
@@ -38,12 +55,7 @@
       window.utils.enumeratesArray(itemsAccessibilityControls);
 
       window.form.address.value = (mapPinMain.offsetLeft + halfWidthMapPinMain) + ', ' + (mapPinMain.offsetTop + window.const.MAIN_PIN_HEIGHT);
-      window.form.typeOfHousing.addEventListener('change', window.form.onTypeOfHousingChange);
-      timein.addEventListener('change', onTimeInOutChange);
-      timeout.addEventListener('change', onTimeInOutChange);
-      // на кнопку Очистить
-      window.form.adFormReset.addEventListener('click', onResetClick);
-      window.form.adFormReset.addEventListener('keydown', onResetKeydown);
+      addEventListenerFunctions();
 
     } else {
 
@@ -90,7 +102,7 @@
       };
 
       /**
-       * событие перемещения мышы
+       * событие перемещения мыши
        *
        * @param {object} moveEvt
        */
@@ -113,7 +125,7 @@
       };
 
       /**
-       * Событие при отпускании кнопки мышы
+       * Событие при отпускании кнопки мыши
        *
        * @param {object} upEvt
        */
@@ -158,12 +170,7 @@
       window.utils.isActive = false;
       adForm.classList.add('ad-form--disabled');
       document.querySelector('.map').classList.add('map--faded');
-
-      window.form.adFormReset.removeEventListener('click', onResetClick);
-      window.form.adFormReset.removeEventListener('keydown', onResetKeydown);
-      window.form.typeOfHousing.removeEventListener('change', window.form.onTypeOfHousingChange);
-      timein.removeEventListener('change', onTimeInOutChange);
-      timeout.removeEventListener('change', onTimeInOutChange);
+      removeEventListenerFunctions();
     }
   };
 
