@@ -1,7 +1,6 @@
 'use strict';
 
 (function () {
-  // var ENTER_CODE = 13;
 
   /**
    * Присваивает true/false для свойства элемента disabled
