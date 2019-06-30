@@ -1,15 +1,11 @@
 'use strict';
 
 (function () {
-  // var PATH_TO_IMG = 'img/avatars/user';
-  // var TYPE_OF_PLACE = ['palace', 'flat', 'house', 'bungalo'];
-  // var MAP_PIN_WIDTH = 50;
-  // var MAP_PIN_HEIGHT = 70;
-  // var ARR_LENGTH = 8;
 
   /**
-   * Уонструктор, заполняем данные по текущему пину
+   * Экземпляр метки
    *
+   * @constructor
    * @param {number} index - порядковый номер
    */
   var Pin = function (index) {
@@ -28,8 +24,8 @@
     var userPinElement = userPin.cloneNode(true);
     var imgPin = userPinElement.querySelector('img');
 
-    userPinElement.style.left = String(mapPin.location.x - (window.const.MAP_PIN_WIDTH / 2)) + 'px';
-    userPinElement.style.top = String(mapPin.location.y - window.const.MAP_PIN_HEIGHT) + 'px';
+    userPinElement.style.left = (mapPin.location.x - window.const.MAP_PIN_HALF_WIDTH) + 'px';
+    userPinElement.style.top = (mapPin.location.y - window.const.MAP_PIN_HEIGHT) + 'px';
 
     imgPin.src = mapPin.author.avatar;
     imgPin.alt = 'Тут могла бы быть Ваша реклама';
@@ -37,10 +33,6 @@
     return userPinElement;
   };
 
-  /**
-   * Добавляет пин в контейнер
-   * ф-я экспортная
-   */
   window.pin = {
     getPinsTemplate: function () {
       var fragment = document.createDocumentFragment();

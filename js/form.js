@@ -1,22 +1,6 @@
 'use strict';
 
 (function () {
-  /**
-   * возвращает минимальную цену
-   *
-   * @return {number}
-   */
-  var transfer = function () {
-    if (typeOfHousing.value === 'palace') {
-      return 10000;
-    } else if (typeOfHousing.value === 'house') {
-      return 5000;
-    } else if (typeOfHousing.value === 'flat') {
-      return 1000;
-    } else {
-      return 0;
-    }
-  };
 
   /**
    * для присвоения для свойства disabled
@@ -33,15 +17,7 @@
     address: address,
     typeOfHousing: typeOfHousing,
     adFormReset: adFormReset,
-    fieldsetsAdForm: fieldsetsAdForm,
-    onTypeOfHousingChange: function () {
-      price.min = transfer();
-      price.placeholder = String(price.min);
-    }
+    fieldsetsAdForm: fieldsetsAdForm
   };
-
-  if (!window.utils.isActive) {
-    window.form.onTypeOfHousingChange();
-  }
 
 })();

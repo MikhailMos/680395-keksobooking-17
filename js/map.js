@@ -15,11 +15,66 @@
     }
   };
 
+  /**
+   * возвращает минимальную цену
+   *
+   * @return {number}
+   */
+  var transfer = function () {
+    if (window.form.typeOfHousing.value === 'palace') {
+      return 10000;
+    } else if (window.form.typeOfHousing.value === 'house') {
+      return 5000;
+    } else if (window.form.typeOfHousing.value === 'flat') {
+      return 1000;
+    } else {
+      return 0;
+    }
+  };
+
+  /**
+   * Изменяет min для select и устанавливает значение в плейсхолдер
+   */
+  var onTypeOfHousingChange = function () {
+    window.form.price.min = transfer();
+    window.form.price.placeholder = String(window.form.price.min);
+  };
+
+  /**
+   * Возвращает объект с координатами по осям X и Y
+   *
+   * @param {number} currentCoordX - текущая координата по оси Х
+   * @param {number} currentCoordY - текущая координата по оси Y
+   * @return {object}
+   */
+  var getLocationMapPinMain = function (currentCoordX, currentCoordY) {
+    var locationObject = {};
+    var locationX = map.offsetWidth - window.const.MAIN_PIN_HALF_WIDTH;
+    var locationY = window.const.MAP_Y_MIN - window.const.MAIN_PIN_HEIGHT;
+
+    if (currentCoordX > locationX) {
+      locationObject.x = locationX;
+    } else if (currentCoordX < -window.const.MAIN_PIN_HALF_WIDTH) {
+      locationObject.x = -window.const.MAIN_PIN_HALF_WIDTH;
+    } else {
+      locationObject.x = currentCoordX;
+    }
+
+    if (locationY > currentCoordY) {
+      locationObject.y = locationY;
+    } else if (window.const.MAP_Y_MAX < currentCoordY) {
+      locationObject.y = window.const.MAP_Y_MAX;
+    } else {
+      locationObject.y = currentCoordY;
+    }
+
+    return locationObject;
+  };
+
   var addEventListenerFunctions = function () {
-    window.form.typeOfHousing.addEventListener('change', window.form.onTypeOfHousingChange);
+    window.form.typeOfHousing.addEventListener('change', onTypeOfHousingChange);
     timein.addEventListener('change', onTimeInOutChange);
     timeout.addEventListener('change', onTimeInOutChange);
-    // на кнопку Очистить
     window.form.adFormReset.addEventListener('click', onResetClick);
     window.form.adFormReset.addEventListener('keydown', onResetKeydown);
   };
@@ -27,7 +82,7 @@
   var removeEventListenerFunctions = function () {
     window.form.adFormReset.removeEventListener('click', onResetClick);
     window.form.adFormReset.removeEventListener('keydown', onResetKeydown);
-    window.form.typeOfHousing.removeEventListener('change', window.form.onTypeOfHousingChange);
+    window.form.typeOfHousing.removeEventListener('change', onTypeOfHousingChange);
     timein.removeEventListener('change', onTimeInOutChange);
     timeout.removeEventListener('change', onTimeInOutChange);
   };
@@ -49,57 +104,17 @@
         defaultCoordsPinMain.x = mapPinMain.offsetLeft;
         defaultCoordsPinMain.y = mapPinMain.offsetTop;
       }
-      // активное состояние
+
       window.utils.isActive = true;
       adForm.classList.remove('ad-form--disabled');
       window.utils.enumeratesArray(itemsAccessibilityControls);
 
-      window.form.address.value = (mapPinMain.offsetLeft + halfWidthMapPinMain) + ', ' + (mapPinMain.offsetTop + window.const.MAIN_PIN_HEIGHT);
+      pointAxisX = (mapPinMain.offsetLeft + window.const.MAIN_PIN_HALF_WIDTH);
+      pointAxisY = (mapPinMain.offsetTop + window.const.MAIN_PIN_HEIGHT);
+      window.form.address.value = pointAxisX + ', ' + pointAxisY;
       addEventListenerFunctions();
 
     } else {
-
-      /**
-       * Возвращает координату по оси Х
-       * (проверка на случай выхода курсора за карту)
-       *
-       * @param {number} currentCoord - текущая координата по оси Х
-       * @return {number}
-       */
-      var getResultX = function (currentCoord) {
-        var locationX = map.offsetWidth - halfWidthMapPinMain;
-
-        if (currentCoord > locationX) {
-          onMouseUp();
-          return locationX;
-        } else if (currentCoord < (-halfWidthMapPinMain)) {
-          onMouseUp();
-          return -halfWidthMapPinMain;
-        } else {
-          return currentCoord;
-        }
-      };
-
-      /**
-       * Возвращает координату по оси Y
-       * (проверка на случай выхода курсора за карту)
-       *
-       * @param {number} currentCoord - текущая координата по оси Y
-       * @return {number}
-       */
-      var getResultY = function (currentCoord) {
-        var locationY = window.const.MAP_Y_MIN - window.const.MAIN_PIN_HEIGHT;
-
-        if (currentCoord < locationY) {
-          onMouseUp();
-          return locationY;
-        } else if (currentCoord > window.const.MAP_Y_MAX) {
-          onMouseUp();
-          return window.const.MAP_Y_MAX;
-        } else {
-          return currentCoord;
-        }
-      };
 
       /**
        * событие перемещения мыши
@@ -114,14 +129,18 @@
           y: startCoords.y - moveEvt.clientY
         };
 
+        var coordsPinMain = getLocationMapPinMain((mapPinMain.offsetLeft - shift.x), (mapPinMain.offsetTop - shift.y));
+
         startCoords = {
           x: moveEvt.clientX,
           y: moveEvt.clientY
         };
 
-        mapPinMain.style.top = getResultY(mapPinMain.offsetTop - shift.y) + 'px';
-        mapPinMain.style.left = getResultX(mapPinMain.offsetLeft - shift.x) + 'px';
-        window.form.address.value = (mapPinMain.offsetLeft + halfWidthMapPinMain) + ', ' + (mapPinMain.offsetTop + window.const.MAIN_PIN_HEIGHT);
+        mapPinMain.style.top = coordsPinMain.y + 'px';
+        mapPinMain.style.left = coordsPinMain.x + 'px';
+        pointAxisX = (mapPinMain.offsetLeft + window.const.MAIN_PIN_HALF_WIDTH);
+        pointAxisY = (mapPinMain.offsetTop + window.const.MAIN_PIN_HEIGHT);
+        window.form.address.value = pointAxisX + ', ' + pointAxisY;
       };
 
       /**
@@ -143,7 +162,6 @@
         y: evt.clientY
       };
 
-      // перемещение главного маркера
       map.addEventListener('mousemove', onMouseMove);
       map.addEventListener('mouseup', onMouseUp);
     }
@@ -154,7 +172,7 @@
    */
   var onResetClick = function () {
     if (window.utils.isActive) {
-      // удаляем метки
+
       var mapPins = map.querySelectorAll('.map__pin');
       mapPins.forEach(function (item) {
         if (!item.classList.contains('map__pin--main')) {
@@ -164,13 +182,15 @@
           item.style.left = defaultCoordsPinMain.x + 'px';
         }
       });
-      // не активное состояние
+
       window.form.address.value = (mapPinMain.offsetLeft) + ', ' + (mapPinMain.offsetTop);
       window.utils.enumeratesArray(itemsAccessibilityControls);
       window.utils.isActive = false;
       adForm.classList.add('ad-form--disabled');
       document.querySelector('.map').classList.add('map--faded');
       removeEventListenerFunctions();
+      window.form.typeOfHousing.selectedIndex = 1;
+      onTypeOfHousingChange();
     }
   };
 
@@ -185,7 +205,6 @@
 
   var map = document.querySelector('.map__pins');
   var mapPinMain = map.querySelector('.map__pin--main');
-  var halfWidthMapPinMain = Math.round(window.const.MAP_PIN_WIDTH / 2);
   var defaultCoordsPinMain = {
     x: 0,
     y: 0
@@ -193,14 +212,20 @@
   var mapFilters = document.querySelector('.map__filters');
   var selectsMapFilters = mapFilters.querySelectorAll('select');
   var fieldsetsMapFilters = mapFilters.querySelectorAll('fieldset');
-  var itemsAccessibilityControls = Array.from(selectsMapFilters).concat(Array.from(fieldsetsMapFilters), Array.from(window.form.fieldsetsAdForm));
+  var arrSelectsMapFilters = Array.from(selectsMapFilters);
+  var arrFieldsetsMapFilters = Array.from(fieldsetsMapFilters);
+  var arrFieldsetsAdForm = Array.from(window.form.fieldsetsAdForm);
+  var itemsAccessibilityControls = arrSelectsMapFilters.concat(arrFieldsetsMapFilters, arrFieldsetsAdForm);
   var adForm = document.querySelector('.ad-form');
   var timein = adForm.querySelector('#timein');
   var timeout = adForm.querySelector('#timeout');
+  var pointAxisX = mapPinMain.offsetLeft;
+  var pointAxisY = mapPinMain.offsetTop;
 
   if (!window.utils.isActive) {
-    window.form.address.value = (mapPinMain.offsetLeft) + ', ' + (mapPinMain.offsetTop);
+    window.form.address.value = pointAxisX + ', ' + pointAxisY;
     window.utils.enumeratesArray(itemsAccessibilityControls);
+    onTypeOfHousingChange();
   }
 
   mapPinMain.addEventListener('mousedown', onMapPinMainMousedown);
