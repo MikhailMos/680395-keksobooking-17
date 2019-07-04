@@ -71,6 +71,43 @@
     return locationObject;
   };
 
+  /**
+   * Добавляет елементы на страницу
+   *
+   * @param {object} loadPins - содержит информацию о загружаемых пинах
+   */
+  var onSuccessHandler = function (loadPins) {
+    var fragment = document.createDocumentFragment();
+    for (var i = 0; i < loadPins.length; i++) {
+      fragment.appendChild(window.pin.getTemplatePin(loadPins[i]));
+    }
+    map.appendChild(fragment);
+
+  };
+
+  /**
+   * Выводит сообщение об ошибке
+   * @param {string} messageError - текст дополнительного сообщения
+   */
+  var onErrorHandler = function (messageError) {
+    var fragment = document.createDocumentFragment();
+    var templateError = document.querySelector('#error').content.querySelector('.error');
+    var templateErrorMessage = templateError.querySelector('.error__message');
+    var brElem = document.createElement('br');
+    var spanElem = document.createElement('span');
+
+    spanElem.textContent = messageError;
+    spanElem.style.fontSize = '30px';
+    spanElem.style.fontWeight = '500';
+
+    templateErrorMessage.insertAdjacentElement('beforeEnd', brElem);
+    templateErrorMessage.insertAdjacentElement('beforeEnd', spanElem);
+
+    fragment.appendChild(templateError);
+    document.querySelector('main').appendChild(fragment);
+  };
+
+  /** Добавляются события */
   var addEventListenerFunctions = function () {
     window.form.typeOfHousing.addEventListener('change', onTypeOfHousingChange);
     timein.addEventListener('change', onTimeInOutChange);
@@ -79,6 +116,7 @@
     window.form.adFormReset.addEventListener('keydown', onResetKeydown);
   };
 
+  /** Удаляются события */
   var removeEventListenerFunctions = function () {
     window.form.adFormReset.removeEventListener('click', onResetClick);
     window.form.adFormReset.removeEventListener('keydown', onResetKeydown);
@@ -98,7 +136,7 @@
     if (!window.utils.isActive) {
 
       document.querySelector('.map').classList.remove('map--faded');
-      map.appendChild(window.pin.getPinsTemplate());
+      window.backend.load(onSuccessHandler, onErrorHandler);
 
       if ((defaultCoordsPinMain.x === 0) && (defaultCoordsPinMain.y === 0)) {
         defaultCoordsPinMain.x = mapPinMain.offsetLeft;
