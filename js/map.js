@@ -16,27 +16,10 @@
   };
 
   /**
-   * возвращает минимальную цену
-   *
-   * @return {number}
-   */
-  var transfer = function () {
-    if (window.form.typeOfHousing.value === 'palace') {
-      return 10000;
-    } else if (window.form.typeOfHousing.value === 'house') {
-      return 5000;
-    } else if (window.form.typeOfHousing.value === 'flat') {
-      return 1000;
-    } else {
-      return 0;
-    }
-  };
-
-  /**
    * Изменяет min для select и устанавливает значение в плейсхолдер
    */
   var onTypeOfHousingChange = function () {
-    window.form.price.min = transfer();
+    window.form.price.min = HousingType[window.form.typeOfHousing.value];
     window.form.price.placeholder = String(window.form.price.min);
   };
 
@@ -259,6 +242,12 @@
   var timeout = adForm.querySelector('#timeout');
   var pointAxisX = mapPinMain.offsetLeft;
   var pointAxisY = mapPinMain.offsetTop;
+  var HousingType = {
+    'palace': 10000,
+    'house': 5000,
+    'flat': 1000,
+    'bungalo': 0
+  };
 
   if (!window.utils.isActive) {
     window.form.address.value = pointAxisX + ', ' + pointAxisY;
