@@ -1,6 +1,13 @@
 'use strict';
 
 (function () {
+  var MAX_NUMBER_OF_PINS = 5;
+  var HousingType = {
+    BUNGALO: 0,
+    FLAT: 1000,
+    HOUSE: 5000,
+    PALACE: 10000
+  };
 
   /**
    * Меняем значение в полях "время заедза и выезда"
@@ -19,7 +26,22 @@
    * Изменяет min для select и устанавливает значение в плейсхолдер
    */
   var onTypeOfHousingChange = function () {
-    window.form.price.min = HousingType[window.form.typeOfHousing.value];
+    var result;
+    switch (window.form.typeOfHousing.value) {
+      case 'palace':
+        result = HousingType.PALACE;
+        break;
+      case 'house':
+        result = HousingType.HOUSE;
+        break;
+      case 'flat':
+        result = HousingType.FLAT;
+        break;
+      default:
+        result = HousingType.BUNGALO;
+        break;
+    }
+    window.form.price.min = result;
     window.form.price.placeholder = String(window.form.price.min);
   };
 
@@ -55,17 +77,29 @@
   };
 
   /**
-   * Добавляет елементы на страницу
+   * Добавляет элементы на страницу
    *
-   * @param {object} loadPins - содержит информацию о загружаемых пинах
+   * @param {array} data - - содержит массив с информацией о загружаемых пинах
    */
-  var onSuccessHandler = function (loadPins) {
+  var renderPin = function (data) {
     var fragment = document.createDocumentFragment();
-    for (var i = 0; i < loadPins.length; i++) {
-      fragment.appendChild(window.pin.getTemplatePin(loadPins[i]));
+    var takeNumber = data.length > MAX_NUMBER_OF_PINS ? MAX_NUMBER_OF_PINS : data.length;
+    for (var i = 0; i < takeNumber; i++) {
+      fragment.appendChild(window.pin.getTemplatePin(data[i]));
     }
     map.appendChild(fragment);
+  };
 
+  /**
+   * Получает данные с сервера при успешной загрузке
+   *
+   * @param {array} loadPins - содержит массив с информацией о загружаемых пинах
+   */
+  var onSuccessHandler = function (loadPins) {
+    // pins.concat(loadPins);
+    pins = loadPins.slice();
+
+    mapPinMain.addEventListener('mousedown', onMapPinMainMousedown);
   };
 
   /**
@@ -119,7 +153,7 @@
     if (!window.utils.isActive) {
 
       document.querySelector('.map').classList.remove('map--faded');
-      window.backend.load(onSuccessHandler, onErrorHandler);
+      renderPin(pins.slice());
 
       if ((defaultCoordsPinMain.x === 0) && (defaultCoordsPinMain.y === 0)) {
         defaultCoordsPinMain.x = mapPinMain.offsetLeft;
@@ -242,12 +276,7 @@
   var timeout = adForm.querySelector('#timeout');
   var pointAxisX = mapPinMain.offsetLeft;
   var pointAxisY = mapPinMain.offsetTop;
-  var HousingType = {
-    'palace': 10000,
-    'house': 5000,
-    'flat': 1000,
-    'bungalo': 0
-  };
+  var pins = [];
 
   if (!window.utils.isActive) {
     window.form.address.value = pointAxisX + ', ' + pointAxisY;
@@ -255,5 +284,6 @@
     onTypeOfHousingChange();
   }
 
-  mapPinMain.addEventListener('mousedown', onMapPinMainMousedown);
+  window.backend.load(onSuccessHandler, onErrorHandler);
+
 })();
