@@ -1,6 +1,13 @@
 'use strict';
 
 (function () {
+  var MAX_NUMBER_OF_PINS = 5;
+  var HousingType = {
+    BUNGALO: 0,
+    FLAT: 1000,
+    HOUSE: 5000,
+    PALACE: 10000
+  };
 
   /**
    * Меняем значение в полях "время заедза и выезда"
@@ -16,27 +23,25 @@
   };
 
   /**
-   * возвращает минимальную цену
-   *
-   * @return {number}
-   */
-  var transfer = function () {
-    if (window.form.typeOfHousing.value === 'palace') {
-      return 10000;
-    } else if (window.form.typeOfHousing.value === 'house') {
-      return 5000;
-    } else if (window.form.typeOfHousing.value === 'flat') {
-      return 1000;
-    } else {
-      return 0;
-    }
-  };
-
-  /**
    * Изменяет min для select и устанавливает значение в плейсхолдер
    */
   var onTypeOfHousingChange = function () {
-    window.form.price.min = transfer();
+    var result;
+    switch (window.form.typeOfHousing.value) {
+      case 'palace':
+        result = HousingType.PALACE;
+        break;
+      case 'house':
+        result = HousingType.HOUSE;
+        break;
+      case 'flat':
+        result = HousingType.FLAT;
+        break;
+      default:
+        result = HousingType.BUNGALO;
+        break;
+    }
+    window.form.price.min = result;
     window.form.price.placeholder = String(window.form.price.min);
   };
 
@@ -71,6 +76,55 @@
     return locationObject;
   };
 
+  /**
+   * Добавляет элементы на страницу
+   *
+   * @param {array} data - - содержит массив с информацией о загружаемых пинах
+   */
+  var renderPin = function (data) {
+    var fragment = document.createDocumentFragment();
+    var takeNumber = data.length > MAX_NUMBER_OF_PINS ? MAX_NUMBER_OF_PINS : data.length;
+    for (var i = 0; i < takeNumber; i++) {
+      fragment.appendChild(window.pin.getTemplatePin(data[i]));
+    }
+    map.appendChild(fragment);
+  };
+
+  /**
+   * Получает данные с сервера при успешной загрузке
+   *
+   * @param {array} loadPins - содержит массив с информацией о загружаемых пинах
+   */
+  var onSuccessHandler = function (loadPins) {
+    // pins.concat(loadPins);
+    pins = loadPins.slice();
+
+    mapPinMain.addEventListener('mousedown', onMapPinMainMousedown);
+  };
+
+  /**
+   * Выводит сообщение об ошибке
+   * @param {string} messageError - текст дополнительного сообщения
+   */
+  var onErrorHandler = function (messageError) {
+    var fragment = document.createDocumentFragment();
+    var templateError = document.querySelector('#error').content.querySelector('.error');
+    var templateErrorMessage = templateError.querySelector('.error__message');
+    var brElem = document.createElement('br');
+    var spanElem = document.createElement('span');
+
+    spanElem.textContent = messageError;
+    spanElem.style.fontSize = '30px';
+    spanElem.style.fontWeight = '500';
+
+    templateErrorMessage.insertAdjacentElement('beforeEnd', brElem);
+    templateErrorMessage.insertAdjacentElement('beforeEnd', spanElem);
+
+    fragment.appendChild(templateError);
+    document.querySelector('main').appendChild(fragment);
+  };
+
+  /** Добавляются события */
   var addEventListenerFunctions = function () {
     window.form.typeOfHousing.addEventListener('change', onTypeOfHousingChange);
     timein.addEventListener('change', onTimeInOutChange);
@@ -79,6 +133,7 @@
     window.form.adFormReset.addEventListener('keydown', onResetKeydown);
   };
 
+  /** Удаляются события */
   var removeEventListenerFunctions = function () {
     window.form.adFormReset.removeEventListener('click', onResetClick);
     window.form.adFormReset.removeEventListener('keydown', onResetKeydown);
@@ -98,7 +153,7 @@
     if (!window.utils.isActive) {
 
       document.querySelector('.map').classList.remove('map--faded');
-      map.appendChild(window.pin.getPinsTemplate());
+      renderPin(pins.slice());
 
       if ((defaultCoordsPinMain.x === 0) && (defaultCoordsPinMain.y === 0)) {
         defaultCoordsPinMain.x = mapPinMain.offsetLeft;
@@ -221,6 +276,7 @@
   var timeout = adForm.querySelector('#timeout');
   var pointAxisX = mapPinMain.offsetLeft;
   var pointAxisY = mapPinMain.offsetTop;
+  var pins = [];
 
   if (!window.utils.isActive) {
     window.form.address.value = pointAxisX + ', ' + pointAxisY;
@@ -228,5 +284,6 @@
     onTypeOfHousingChange();
   }
 
-  mapPinMain.addEventListener('mousedown', onMapPinMainMousedown);
+  window.backend.load(onSuccessHandler, onErrorHandler);
+
 })();
