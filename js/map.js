@@ -79,7 +79,7 @@
   /**
    * Добавляет элементы на страницу
    *
-   * @param {array} data - - содержит массив с информацией о загружаемых пинах
+   * @param {array} data - содержит массив с информацией о загружаемых пинах
    */
   var renderPin = function (data) {
     var fragment = document.createDocumentFragment();
@@ -96,7 +96,6 @@
    * @param {array} loadPins - содержит массив с информацией о загружаемых пинах
    */
   var onSuccessHandler = function (loadPins) {
-    // pins.concat(loadPins);
     pins = loadPins.slice();
 
     mapPinMain.addEventListener('mousedown', onMapPinMainMousedown);
