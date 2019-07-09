@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  var MAX_NUMBER_OF_PINS = 5;
+  // var MAX_NUMBER_OF_PINS = 5;
   var HousingType = {
     BUNGALO: 0,
     FLAT: 1000,
@@ -77,26 +77,11 @@
   };
 
   /**
-   * Добавляет элементы на страницу
-   *
-   * @param {array} data - - содержит массив с информацией о загружаемых пинах
-   */
-  var renderPin = function (data) {
-    var fragment = document.createDocumentFragment();
-    var takeNumber = data.length > MAX_NUMBER_OF_PINS ? MAX_NUMBER_OF_PINS : data.length;
-    for (var i = 0; i < takeNumber; i++) {
-      fragment.appendChild(window.pin.getTemplatePin(data[i]));
-    }
-    map.appendChild(fragment);
-  };
-
-  /**
    * Получает данные с сервера при успешной загрузке
    *
    * @param {array} loadPins - содержит массив с информацией о загружаемых пинах
    */
   var onSuccessHandler = function (loadPins) {
-    // pins.concat(loadPins);
     pins = loadPins.slice();
 
     mapPinMain.addEventListener('mousedown', onMapPinMainMousedown);
@@ -124,13 +109,32 @@
     document.querySelector('main').appendChild(fragment);
   };
 
+  /**
+   * Фильтрует список данных
+   */
+  var onFilterChange = function () {
+    var sortPins = pins.slice();
+
+    window.render.renderPin(sortPins.filter(function (item) {
+      if (filterHousingType.value === 'any') {
+        return true;
+      } else {
+        return item.offer.type === filterHousingType.value;
+      }
+    }));
+  };
+
   /** Добавляются события */
   var addEventListenerFunctions = function () {
     window.form.typeOfHousing.addEventListener('change', onTypeOfHousingChange);
-    timein.addEventListener('change', onTimeInOutChange);
-    timeout.addEventListener('change', onTimeInOutChange);
     window.form.adFormReset.addEventListener('click', onResetClick);
     window.form.adFormReset.addEventListener('keydown', onResetKeydown);
+    timein.addEventListener('change', onTimeInOutChange);
+    timeout.addEventListener('change', onTimeInOutChange);
+    // filterHousingType.addEventListener('change', onFilterChange);
+    selectsMapFilters.forEach(function (item) {
+      item.addEventListener('change', onFilterChange);
+    });
   };
 
   /** Удаляются события */
@@ -140,6 +144,10 @@
     window.form.typeOfHousing.removeEventListener('change', onTypeOfHousingChange);
     timein.removeEventListener('change', onTimeInOutChange);
     timeout.removeEventListener('change', onTimeInOutChange);
+    // filterHousingType.removeEventListener('change', onFilterChange);
+    selectsMapFilters.forEach(function (item) {
+      item.removeEventListener('change', onFilterChange);
+    });
   };
 
   /**
@@ -153,7 +161,7 @@
     if (!window.utils.isActive) {
 
       document.querySelector('.map').classList.remove('map--faded');
-      renderPin(pins.slice());
+      window.render.renderPin(pins.slice());
 
       if ((defaultCoordsPinMain.x === 0) && (defaultCoordsPinMain.y === 0)) {
         defaultCoordsPinMain.x = mapPinMain.offsetLeft;
@@ -271,6 +279,7 @@
   var arrFieldsetsMapFilters = Array.from(fieldsetsMapFilters);
   var arrFieldsetsAdForm = Array.from(window.form.fieldsetsAdForm);
   var itemsAccessibilityControls = arrSelectsMapFilters.concat(arrFieldsetsMapFilters, arrFieldsetsAdForm);
+  var filterHousingType = mapFilters.querySelector('#housing-type');
   var adForm = document.querySelector('.ad-form');
   var timein = adForm.querySelector('#timein');
   var timeout = adForm.querySelector('#timeout');
