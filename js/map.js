@@ -109,13 +109,32 @@
     document.querySelector('main').appendChild(fragment);
   };
 
+  /**
+   * Фильтрует список данных
+   */
+  var onFilterChange = function () {
+    var sortPins = pins.slice();
+
+    window.render.renderPin(sortPins.filter(function (item) {
+      if (filterHousingType.value === 'any') {
+        return true;
+      } else {
+        return item.offer.type === filterHousingType.value;
+      }
+    }));
+  };
+
   /** Добавляются события */
   var addEventListenerFunctions = function () {
     window.form.typeOfHousing.addEventListener('change', onTypeOfHousingChange);
-    timein.addEventListener('change', onTimeInOutChange);
-    timeout.addEventListener('change', onTimeInOutChange);
     window.form.adFormReset.addEventListener('click', onResetClick);
     window.form.adFormReset.addEventListener('keydown', onResetKeydown);
+    timein.addEventListener('change', onTimeInOutChange);
+    timeout.addEventListener('change', onTimeInOutChange);
+    // filterHousingType.addEventListener('change', onFilterChange);
+    selectsMapFilters.forEach(function (item) {
+      item.addEventListener('change', onFilterChange);
+    });
   };
 
   /** Удаляются события */
@@ -125,6 +144,10 @@
     window.form.typeOfHousing.removeEventListener('change', onTypeOfHousingChange);
     timein.removeEventListener('change', onTimeInOutChange);
     timeout.removeEventListener('change', onTimeInOutChange);
+    // filterHousingType.removeEventListener('change', onFilterChange);
+    selectsMapFilters.forEach(function (item) {
+      item.removeEventListener('change', onFilterChange);
+    });
   };
 
   /**
@@ -133,14 +156,12 @@
    * @param {object} evt
    */
   var onMapPinMainMousedown = function (evt) {
-    var fragment;
     evt.preventDefault();
 
     if (!window.utils.isActive) {
 
       document.querySelector('.map').classList.remove('map--faded');
-      fragment = window.render.renderPin(pins.slice());
-      map.appendChild(fragment);
+      window.render.renderPin(pins.slice());
 
       if ((defaultCoordsPinMain.x === 0) && (defaultCoordsPinMain.y === 0)) {
         defaultCoordsPinMain.x = mapPinMain.offsetLeft;
@@ -258,6 +279,7 @@
   var arrFieldsetsMapFilters = Array.from(fieldsetsMapFilters);
   var arrFieldsetsAdForm = Array.from(window.form.fieldsetsAdForm);
   var itemsAccessibilityControls = arrSelectsMapFilters.concat(arrFieldsetsMapFilters, arrFieldsetsAdForm);
+  var filterHousingType = mapFilters.querySelector('#housing-type');
   var adForm = document.querySelector('.ad-form');
   var timein = adForm.querySelector('#timein');
   var timeout = adForm.querySelector('#timeout');
