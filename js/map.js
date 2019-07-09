@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  var MAX_NUMBER_OF_PINS = 5;
+  // var MAX_NUMBER_OF_PINS = 5;
   var HousingType = {
     BUNGALO: 0,
     FLAT: 1000,
@@ -77,20 +77,6 @@
   };
 
   /**
-   * Добавляет элементы на страницу
-   *
-   * @param {array} data - содержит массив с информацией о загружаемых пинах
-   */
-  var renderPin = function (data) {
-    var fragment = document.createDocumentFragment();
-    var takeNumber = data.length > MAX_NUMBER_OF_PINS ? MAX_NUMBER_OF_PINS : data.length;
-    for (var i = 0; i < takeNumber; i++) {
-      fragment.appendChild(window.pin.getTemplatePin(data[i]));
-    }
-    map.appendChild(fragment);
-  };
-
-  /**
    * Получает данные с сервера при успешной загрузке
    *
    * @param {array} loadPins - содержит массив с информацией о загружаемых пинах
@@ -147,12 +133,14 @@
    * @param {object} evt
    */
   var onMapPinMainMousedown = function (evt) {
+    var fragment;
     evt.preventDefault();
 
     if (!window.utils.isActive) {
 
       document.querySelector('.map').classList.remove('map--faded');
-      renderPin(pins.slice());
+      fragment = window.render.renderPin(pins.slice());
+      map.appendChild(fragment);
 
       if ((defaultCoordsPinMain.x === 0) && (defaultCoordsPinMain.y === 0)) {
         defaultCoordsPinMain.x = mapPinMain.offsetLeft;
