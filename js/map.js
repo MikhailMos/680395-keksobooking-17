@@ -1,12 +1,61 @@
 'use strict';
 
 (function () {
-  // var MAX_NUMBER_OF_PINS = 5;
-  var HousingType = {
+  var HousingTypePrice = {
     BUNGALO: 0,
     FLAT: 1000,
     HOUSE: 5000,
     PALACE: 10000
+  };
+
+  /**
+   * Создает объект содержащий ограничения по осям
+   * @constructor
+   * @param {number} top - ограничение сверху по оси Y
+   * @param {number} right ограничение справа по оси X
+   * @param {number} bottom - ограничение снизу по оси Y
+   * @param {number} left - ограничение слева по оси X
+   */
+  var Rect = function (top, right, bottom, left) {
+    this.top = top;
+    this.right = right;
+    this.bottom = bottom;
+    this.left = left;
+  };
+
+  /**
+   * Создает объект со свойствами X и Y
+   *
+   * @constructor
+   * @param {number} x - значение по оси X
+   * @param {number} y - значение по оси Y
+   * @param {object} contrains - ограничения по осям X и Y
+   */
+  var Coordinate = function (x, y, contrains) {
+    this.x = x;
+    this.y = y;
+    this._contrains = contrains;
+  };
+
+  Coordinate.prototype = {
+    setX: function (x) {
+      if (x < this._contrains.left) {
+        this.x = this._contrains.left;
+      } else if (x > this._contrains.right) {
+        this.x = this._contrains.right;
+      } else {
+        this.x = x;
+      }
+    },
+    setY: function (y) {
+      if (y < this._contrains.top) {
+        this.y = this._contrains.top;
+      } else if (y > this._contrains.bottom) {
+        this.y = this._contrains.bottom;
+      } else {
+        this.y = y;
+      }
+    }
   };
 
   /**
@@ -29,51 +78,20 @@
     var result;
     switch (window.form.typeOfHousing.value) {
       case 'palace':
-        result = HousingType.PALACE;
+        result = HousingTypePrice.PALACE;
         break;
       case 'house':
-        result = HousingType.HOUSE;
+        result = HousingTypePrice.HOUSE;
         break;
       case 'flat':
-        result = HousingType.FLAT;
+        result = HousingTypePrice.FLAT;
         break;
       default:
-        result = HousingType.BUNGALO;
+        result = HousingTypePrice.BUNGALO;
         break;
     }
     window.form.price.min = result;
     window.form.price.placeholder = String(window.form.price.min);
-  };
-
-  /**
-   * Возвращает объект с координатами по осям X и Y
-   *
-   * @param {number} currentCoordX - текущая координата по оси Х
-   * @param {number} currentCoordY - текущая координата по оси Y
-   * @return {object}
-   */
-  var getLocationMapPinMain = function (currentCoordX, currentCoordY) {
-    var locationObject = {};
-    var locationX = map.offsetWidth - window.const.MAIN_PIN_HALF_WIDTH;
-    var locationY = window.const.MAP_Y_MIN - window.const.MAIN_PIN_HEIGHT;
-
-    if (currentCoordX > locationX) {
-      locationObject.x = locationX;
-    } else if (currentCoordX < -window.const.MAIN_PIN_HALF_WIDTH) {
-      locationObject.x = -window.const.MAIN_PIN_HALF_WIDTH;
-    } else {
-      locationObject.x = currentCoordX;
-    }
-
-    if (locationY > currentCoordY) {
-      locationObject.y = locationY;
-    } else if (window.const.MAP_Y_MAX < currentCoordY) {
-      locationObject.y = window.const.MAP_Y_MAX;
-    } else {
-      locationObject.y = currentCoordY;
-    }
-
-    return locationObject;
   };
 
   /**
@@ -187,17 +205,14 @@
       var onMouseMove = function (moveEvt) {
         moveEvt.preventDefault();
 
-        var shift = {
-          x: startCoords.x - moveEvt.clientX,
-          y: startCoords.y - moveEvt.clientY
-        };
+        var shift = new Coordinate(startCoords.x - moveEvt.clientX, startCoords.y - moveEvt.clientY);
 
-        var coordsPinMain = getLocationMapPinMain((mapPinMain.offsetLeft - shift.x), (mapPinMain.offsetTop - shift.y));
+        var coordsPinMain = new Coordinate(0, 0, contrains);
+        coordsPinMain.setX(mapPinMain.offsetLeft - shift.x);
+        coordsPinMain.setY(mapPinMain.offsetTop - shift.y);
 
-        startCoords = {
-          x: moveEvt.clientX,
-          y: moveEvt.clientY
-        };
+        startCoords.x = moveEvt.clientX;
+        startCoords.y = moveEvt.clientY;
 
         mapPinMain.style.top = coordsPinMain.y + 'px';
         mapPinMain.style.left = coordsPinMain.x + 'px';
@@ -220,10 +235,7 @@
         map.removeEventListener('mouseup', onMouseUp);
       };
 
-      var startCoords = {
-        x: evt.clientX,
-        y: evt.clientY
-      };
+      var startCoords = new Coordinate(evt.clientX, evt.clientY);
 
       map.addEventListener('mousemove', onMouseMove);
       map.addEventListener('mouseup', onMouseUp);
@@ -268,10 +280,6 @@
 
   var map = document.querySelector('.map__pins');
   var mapPinMain = map.querySelector('.map__pin--main');
-  var defaultCoordsPinMain = {
-    x: 0,
-    y: 0
-  };
   var mapFilters = document.querySelector('.map__filters');
   var selectsMapFilters = mapFilters.querySelectorAll('select');
   var fieldsetsMapFilters = mapFilters.querySelectorAll('fieldset');
@@ -283,6 +291,12 @@
   var adForm = document.querySelector('.ad-form');
   var timein = adForm.querySelector('#timein');
   var timeout = adForm.querySelector('#timeout');
+
+  var contrains = new Rect(window.const.MAP_Y_MIN - window.const.MAIN_PIN_HEIGHT,
+      map.offsetWidth - window.const.MAIN_PIN_HALF_WIDTH,
+      window.const.MAP_Y_MAX,
+      -window.const.MAIN_PIN_HALF_WIDTH);
+  var defaultCoordsPinMain = new Coordinate(0, 0);
   var pointAxisX = mapPinMain.offsetLeft;
   var pointAxisY = mapPinMain.offsetTop;
   var pins = [];

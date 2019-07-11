@@ -23,6 +23,7 @@
     for (var i = 0; i < takeNumber; i++) {
       fragment.appendChild(window.pin.getTemplatePin(data[i]));
     }
+    window.card.getCard(data[0]);
     map.appendChild(fragment);
   };
 
