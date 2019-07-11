@@ -54,7 +54,7 @@
 
 
     cardTitle.textContent = offerPin.title;
-    cardTextAddress.textContent = offerPin.Address;
+    cardTextAddress.textContent = offerPin.address;
     cardTextPrice.childNodes[0].textContent = String(offerPin.price) + '₽';
     cardHouseType.textContent = returnTextHousingType(offerPin.type);
     cardTextCapacity.textContent = offerPin.rooms + ' комнаты для ' + offerPin.guests + ' гостей';
