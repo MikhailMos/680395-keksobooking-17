@@ -16,6 +16,20 @@
     }
   };
 
+  var onCardClick = function () {
+    var card = map.querySelector('.map__card');
+    var popupClose = card.querySelector('.popup__close');
+    map.removeChild(card);
+    popupClose.addEventListener('click', onCardClick);
+  };
+
+  var onCardEscPress = function (evt) {
+    if (evt.keyCode === window.const.ESC_CODE) {
+      onCardClick();
+      document.removeEventListener('keydown', onCardEscPress);
+    }
+  };
+
   var getCard = function (dataPin) {
     var offerPin = dataPin.offer;
     var card = templateCard.cloneNode(true);
@@ -34,11 +48,13 @@
     var cardDescription = card.querySelector('.popup__description');
     var cardAvatar = card.querySelector('.popup__avatar');
     var templatePhoto = card.querySelector('.popup__photo');
+    var popupClose = card.querySelector('.popup__close');
+
     var fragment = document.createDocumentFragment();
 
 
     cardTitle.textContent = offerPin.title;
-    cardTextAddress.textContent = offerPin.Address;
+    cardTextAddress.textContent = offerPin.address;
     cardTextPrice.childNodes[0].textContent = String(offerPin.price) + '₽';
     cardHouseType.textContent = returnTextHousingType(offerPin.type);
     cardTextCapacity.textContent = offerPin.rooms + ' комнаты для ' + offerPin.guests + ' гостей';
@@ -49,21 +65,29 @@
       }
     });
     cardDescription.textContent = offerPin.description;
-    offerPin.photos.forEach(function (item, i) {
-      if (i === 0) {
-        templatePhoto.src = item;
-      } else {
-        var cardElemPhoto = templatePhoto.cloneNode(true);
-        cardElemPhoto.src = item;
-        fragment.appendChild(cardElemPhoto);
-      }
-    });
+    if (offerPin.photos.length === 0) {
+      card.querySelector('.popup__photos').removeChild(templatePhoto);
+    } else {
+      offerPin.photos.forEach(function (item, i) {
+        if (i === 0) {
+          templatePhoto.src = item;
+        } else {
+          var cardElemPhoto = templatePhoto.cloneNode(true);
+          cardElemPhoto.src = item;
+          fragment.appendChild(cardElemPhoto);
+        }
+      });
+    }
+
     if (fragment) {
       card.querySelector('.popup__photos').appendChild(fragment);
     }
     cardAvatar.src = dataPin.author.avatar;
 
     mapPinsContainer.insertAdjacentElement('beforebegin', card);
+
+    popupClose.addEventListener('click', onCardClick);
+    document.addEventListener('keydown', onCardEscPress);
   };
 
   window.card = {
@@ -71,6 +95,6 @@
   };
 
   var templateCard = document.querySelector('#card').content.querySelector('.map__card');
-  // var templatePhotos = templateCard.querySelector('.popup__photos');
+  var map = document.querySelector('.map');
   var mapPinsContainer = document.querySelector('.map__filters-container');
 })();

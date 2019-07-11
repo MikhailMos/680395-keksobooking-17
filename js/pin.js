@@ -14,10 +14,14 @@
 
     userPinElement.style.left = (mapPin.location.x - window.const.MAP_PIN_HALF_WIDTH) + 'px';
     userPinElement.style.top = (mapPin.location.y - window.const.MAP_PIN_HEIGHT) + 'px';
-    userPinElement.value = JSON.stringify(mapPin.offer);
+    userPinElement.value = String(mapPin.location.x) + ', ' + String(mapPin.location.y);
 
     imgPin.src = mapPin.author.avatar;
     imgPin.alt = mapPin.offer.title;
+
+    userPinElement.addEventListener('click', function () {
+      window.card.getCard(mapPin);
+    });
 
     return userPinElement;
   };
