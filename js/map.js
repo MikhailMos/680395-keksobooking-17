@@ -205,14 +205,14 @@
       var onMouseMove = function (moveEvt) {
         moveEvt.preventDefault();
 
-        var shift = new Coordinate(startCoords.x - moveEvt.clientX, startCoords.y - moveEvt.clientY, contrains);
+        var shift = new Coordinate(startCoords.x - moveEvt.clientX, startCoords.y - moveEvt.clientY);
 
         var coordsPinMain = new Coordinate(0, 0, contrains);
         coordsPinMain.setX(mapPinMain.offsetLeft - shift.x);
         coordsPinMain.setY(mapPinMain.offsetTop - shift.y);
 
-        startCoords.setX(moveEvt.clientX);
-        startCoords.setY(moveEvt.clientY);
+        startCoords.x = moveEvt.clientX;
+        startCoords.y = moveEvt.clientY;
 
         mapPinMain.style.top = coordsPinMain.y + 'px';
         mapPinMain.style.left = coordsPinMain.x + 'px';
@@ -235,7 +235,7 @@
         map.removeEventListener('mouseup', onMouseUp);
       };
 
-      var startCoords = new Coordinate(evt.clientX, evt.clientY, contrains);
+      var startCoords = new Coordinate(evt.clientX, evt.clientY);
 
       map.addEventListener('mousemove', onMouseMove);
       map.addEventListener('mouseup', onMouseUp);
