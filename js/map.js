@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  var HousingType = {
+  var HousingTypePrice = {
     BUNGALO: 0,
     FLAT: 1000,
     HOUSE: 5000,
@@ -78,16 +78,16 @@
     var result;
     switch (window.form.typeOfHousing.value) {
       case 'palace':
-        result = HousingType.PALACE;
+        result = HousingTypePrice.PALACE;
         break;
       case 'house':
-        result = HousingType.HOUSE;
+        result = HousingTypePrice.HOUSE;
         break;
       case 'flat':
-        result = HousingType.FLAT;
+        result = HousingTypePrice.FLAT;
         break;
       default:
-        result = HousingType.BUNGALO;
+        result = HousingTypePrice.BUNGALO;
         break;
     }
     window.form.price.min = result;
