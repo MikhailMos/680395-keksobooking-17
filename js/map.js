@@ -10,6 +10,18 @@
   };
 
   /**
+   * Создает объект со свойствами X и Y
+   *
+   * @constructor
+   * @param {number} x - координата по оси X
+   * @param {number} y - координата по оси Y
+   */
+  var Coordinate = function (x, y) {
+    this.x = x;
+    this.y = y;
+  };
+
+  /**
    * Меняем значение в полях "время заедза и выезда"
    *
    * @param {object} evt
@@ -187,11 +199,7 @@
       var onMouseMove = function (moveEvt) {
         moveEvt.preventDefault();
 
-        var shift = {
-          x: startCoords.x - moveEvt.clientX,
-          y: startCoords.y - moveEvt.clientY
-        };
-
+        var shift = new Coordinate(startCoords.x - moveEvt.clientX, startCoords.y - moveEvt.clientY);
         var coordsPinMain = getLocationMapPinMain((mapPinMain.offsetLeft - shift.x), (mapPinMain.offsetTop - shift.y));
 
         startCoords = {
@@ -220,10 +228,7 @@
         map.removeEventListener('mouseup', onMouseUp);
       };
 
-      var startCoords = {
-        x: evt.clientX,
-        y: evt.clientY
-      };
+      var startCoords = new Coordinate(evt.clientX, evt.clientY);
 
       map.addEventListener('mousemove', onMouseMove);
       map.addEventListener('mouseup', onMouseUp);
@@ -268,10 +273,7 @@
 
   var map = document.querySelector('.map__pins');
   var mapPinMain = map.querySelector('.map__pin--main');
-  var defaultCoordsPinMain = {
-    x: 0,
-    y: 0
-  };
+  var defaultCoordsPinMain = new Coordinate(0, 0);
   var mapFilters = document.querySelector('.map__filters');
   var selectsMapFilters = mapFilters.querySelectorAll('select');
   var fieldsetsMapFilters = mapFilters.querySelectorAll('fieldset');
