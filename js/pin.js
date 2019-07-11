@@ -19,6 +19,10 @@
     imgPin.src = mapPin.author.avatar;
     imgPin.alt = mapPin.offer.title;
 
+    userPinElement.addEventListener('click', function () {
+      window.card.getCard(mapPin);
+    });
+
     return userPinElement;
   };
 
