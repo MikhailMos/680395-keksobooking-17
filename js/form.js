@@ -10,9 +10,11 @@
   var address = adForm.querySelector('#address');
   var typeOfHousing = adForm.querySelector('#type');
   var price = adForm.querySelector('#price');
+  var title = adForm.querySelector('#title');
   var fieldsetsAdForm = adForm.querySelectorAll('fieldset');
 
   window.form = {
+    title: title,
     price: price,
     address: address,
     typeOfHousing: typeOfHousing,

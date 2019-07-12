@@ -95,6 +95,30 @@
   };
 
   /**
+   * Сохраняет данные на сервер
+   *
+   * @param {object} evt
+   */
+  var saveToServer = function (evt) {
+    window.backend.upload(new FormData(adForm), onSaveHandler, onErrorHandler);
+    evt.preventDefault();
+  };
+
+  /**
+   * Проверяет на заполненность и тип, объект загруженный на сервер
+   *
+   * @param {object} responsive - ответ от сервера
+   */
+  var onSaveHandler = function (responsive) {
+    if ((typeof (responsive) === 'object') && (JSON.stringify(responsive).length > 0)) {
+      adForm.removeEventListener('submit', saveToServer);
+      onResetClick();
+    } else {
+      onErrorHandler('Что-то пошло не так!');
+    }
+  };
+
+  /**
    * Получает данные с сервера при успешной загрузке
    *
    * @param {array} loadPins - содержит массив с информацией о загружаемых пинах
@@ -213,6 +237,8 @@
       addEventListenerFunctions();
       onRoomNumberCapacityChange();
 
+      adForm.addEventListener('submit', saveToServer);
+
     } else {
 
       /**
@@ -276,14 +302,15 @@
         }
       });
 
+      window.form.title.value = '';
       window.form.address.value = (mapPinMain.offsetLeft) + ', ' + (mapPinMain.offsetTop);
       window.utils.enumeratesArray(itemsAccessibilityControls);
       window.utils.isActive = false;
       adForm.classList.add('ad-form--disabled');
       document.querySelector('.map').classList.add('map--faded');
-      removeEventListenerFunctions();
       window.form.typeOfHousing.selectedIndex = 1;
       onTypeOfHousingChange();
+      removeEventListenerFunctions();
     }
   };
 
