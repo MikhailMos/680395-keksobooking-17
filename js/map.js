@@ -142,6 +142,21 @@
     }));
   };
 
+  var onRoomNumberCapacityChange = function () {
+    var textMessage = '';
+    if (roomNumber.value === '100' && (capacity.value !== '0')) {
+      textMessage = '100 комнат - не для гостей!';
+    } else if (roomNumber.value === '3' && capacity.value === '0') {
+      textMessage = 'Количество мест для гостей должно быть от 1 до 3х!';
+    } else if (roomNumber.value === '2' && (capacity.value === '3' || capacity.value === '0')) {
+      textMessage = 'Количество мест должно быть либо для 1 гостя, либо для 2 гостей';
+    } else if (roomNumber.value === '1' && capacity.value !== '1') {
+      textMessage = 'Количество мест должно быть для 1 гостя!';
+    }
+
+    capacity.setCustomValidity(textMessage);
+  };
+
   /** Добавляются события */
   var addEventListenerFunctions = function () {
     window.form.typeOfHousing.addEventListener('change', onTypeOfHousingChange);
@@ -149,7 +164,8 @@
     window.form.adFormReset.addEventListener('keydown', onResetKeydown);
     timein.addEventListener('change', onTimeInOutChange);
     timeout.addEventListener('change', onTimeInOutChange);
-    // filterHousingType.addEventListener('change', onFilterChange);
+    roomNumber.addEventListener('change', onRoomNumberCapacityChange);
+    capacity.addEventListener('change', onRoomNumberCapacityChange);
     selectsMapFilters.forEach(function (item) {
       item.addEventListener('change', onFilterChange);
     });
@@ -162,7 +178,8 @@
     window.form.typeOfHousing.removeEventListener('change', onTypeOfHousingChange);
     timein.removeEventListener('change', onTimeInOutChange);
     timeout.removeEventListener('change', onTimeInOutChange);
-    // filterHousingType.removeEventListener('change', onFilterChange);
+    roomNumber.removeEventListener('change', onRoomNumberCapacityChange);
+    capacity.removeEventListener('change', onRoomNumberCapacityChange);
     selectsMapFilters.forEach(function (item) {
       item.removeEventListener('change', onFilterChange);
     });
@@ -194,6 +211,7 @@
       pointAxisY = (mapPinMain.offsetTop + window.const.MAIN_PIN_HEIGHT);
       window.form.address.value = pointAxisX + ', ' + pointAxisY;
       addEventListenerFunctions();
+      onRoomNumberCapacityChange();
 
     } else {
 
@@ -291,6 +309,8 @@
   var adForm = document.querySelector('.ad-form');
   var timein = adForm.querySelector('#timein');
   var timeout = adForm.querySelector('#timeout');
+  var roomNumber = adForm.querySelector('#room_number');
+  var capacity = adForm.querySelector('#capacity');
 
   var contrains = new Rect(window.const.MAP_Y_MIN - window.const.MAIN_PIN_HEIGHT,
       map.offsetWidth - window.const.MAIN_PIN_HALF_WIDTH,
