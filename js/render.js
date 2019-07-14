@@ -4,11 +4,35 @@
   var MAX_NUMBER_OF_PINS = 5;
 
   /**
+   * возвращает пин как DOM-элемент
+   *
+   * @param {object} mapPin - заполненный пин в Pin
+   * @return {object}
+   */
+  var getTemplatePin = function (mapPin) {
+    var userPinElement = userPin.cloneNode(true);
+    var imgPin = userPinElement.querySelector('img');
+
+    userPinElement.style.left = (mapPin.location.x - window.const.mapPin.HALF_WIDTH) + 'px';
+    userPinElement.style.top = (mapPin.location.y - window.const.mapPin.HEIGHT) + 'px';
+    userPinElement.value = String(mapPin.location.x) + ', ' + String(mapPin.location.y);
+
+    imgPin.src = mapPin.author.avatar;
+    imgPin.alt = mapPin.offer.title;
+
+    userPinElement.addEventListener('click', function () {
+      window.card.renderCard(mapPin);
+    });
+
+    return userPinElement;
+  };
+
+  /**
    * Добавляет DOM элементы на страницу
    *
    * @param {array} data - содержит массив с информацией о загружаемых пинах
    */
-  var renderPin = function (data) {
+  window.renderPin = function (data) {
     if (window.utils.isActive) {
       var mapPins = map.querySelectorAll('.map__pin');
       mapPins.forEach(function (item) {
@@ -21,15 +45,12 @@
     var fragment = document.createDocumentFragment();
     var takeNumber = data.length > MAX_NUMBER_OF_PINS ? MAX_NUMBER_OF_PINS : data.length;
     for (var i = 0; i < takeNumber; i++) {
-      fragment.appendChild(window.pin.getTemplatePin(data[i]));
+      fragment.appendChild(getTemplatePin(data[i]));
     }
     map.appendChild(fragment);
   };
 
   var map = document.querySelector('.map__pins');
-
-  window.render = {
-    renderPin: renderPin
-  };
+  var userPin = document.querySelector('#pin').content.querySelector('.map__pin');
 
 })();
