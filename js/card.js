@@ -1,19 +1,27 @@
 'use strict';
 
 (function () {
-  var returnTextHousingType = function (type) {
-    switch (type) {
-      case 'bungalo':
-        return 'Бунгало';
-      case 'flat':
-        return 'Квартира';
-      case 'house':
-        return 'Дом';
-      case 'palace':
-        return 'Дворец';
-      default:
-        return 'Данные не прочитаны';
+  var housingType = {
+    bungalo: {
+      name: 'Бунгало',
+      price: 0
+    },
+    flat: {
+      name: 'Квартира',
+      price: 1000
+    },
+    house: {
+      name: 'Дом',
+      price: 5000
+    },
+    palace: {
+      name: 'Дворец',
+      price: 10000
     }
+  };
+
+  var returnTextHousingType = function (type) {
+    return housingType[type].name;
   };
 
   var onCardClick = function () {
@@ -30,7 +38,43 @@
     }
   };
 
-  var getCard = function (dataPin) {
+  var getPhotos = function (card, offerPin) {
+    var templatePhoto = card.querySelector('.popup__photo');
+    var photos = card.querySelector('.popup__photos');
+
+    if (!offerPin.photos.length) {
+      photos.removeChild(templatePhoto);
+      return;
+    }
+
+    offerPin.photos.forEach(function (item, i) {
+      var cardElemPhoto = i ? templatePhoto.cloneNode(true) : templatePhoto;
+      cardElemPhoto.src = item;
+
+      if (i > 0) {
+        photos.appendChild(cardElemPhoto);
+      }
+    });
+  };
+
+  var getEnds = function (item) {
+    return item.className.slice(item.className.lastIndexOf('-') + 1);
+  };
+
+  var getFuteresEnds = function (cardFeatures) {
+    var arrCardFeatures = Array.from(cardFeatures);
+    return arrCardFeatures.map(getEnds);
+  };
+
+  var delNoHasFeatures = function (hasFeaturesEnds, offerPinFeatures, cardFeatures, parent) {
+    hasFeaturesEnds.forEach(function (item, i) {
+      if (offerPinFeatures.indexOf(item) === -1) {
+        parent.removeChild(cardFeatures[i]);
+      }
+    });
+  };
+
+  var renderCard = function (dataPin) {
     var offerPin = dataPin.offer;
     var card = templateCard.cloneNode(true);
     var cardTitle = card.querySelector('.popup__title');
@@ -41,17 +85,15 @@
     var cardTextTime = card.querySelector('.popup__text--time');
     var cardFeaturesParent = card.querySelector('.popup__features');
     var cardFeatures = card.querySelectorAll('.popup__feature');
-    var arrCardFeatures = Array.from(cardFeatures);
-    var arrFeaturesEnds = arrCardFeatures.map(function (item) {
-      return item.className.slice(item.className.lastIndexOf('-') + 1);
-    });
+    var hasFeaturesEnds = getFuteresEnds(cardFeatures);
     var cardDescription = card.querySelector('.popup__description');
     var cardAvatar = card.querySelector('.popup__avatar');
-    var templatePhoto = card.querySelector('.popup__photo');
     var popupClose = card.querySelector('.popup__close');
+    var isPopup = document.querySelector('.map__card');
 
-    var fragment = document.createDocumentFragment();
-
+    if (isPopup) {
+      document.querySelector('.map').removeChild(isPopup);
+    }
 
     cardTitle.textContent = offerPin.title;
     cardTextAddress.textContent = offerPin.address;
@@ -59,30 +101,10 @@
     cardHouseType.textContent = returnTextHousingType(offerPin.type);
     cardTextCapacity.textContent = offerPin.rooms + ' комнаты для ' + offerPin.guests + ' гостей';
     cardTextTime.textContent = 'Заезд после ' + offerPin.checkin + ', выезд до ' + offerPin.checkout;
-    arrFeaturesEnds.forEach(function (item, i) {
-      if (offerPin.features.indexOf(item) === -1) {
-        cardFeaturesParent.removeChild(cardFeatures[i]);
-      }
-    });
     cardDescription.textContent = offerPin.description;
-    if (offerPin.photos.length === 0) {
-      card.querySelector('.popup__photos').removeChild(templatePhoto);
-    } else {
-      offerPin.photos.forEach(function (item, i) {
-        if (i === 0) {
-          templatePhoto.src = item;
-        } else {
-          var cardElemPhoto = templatePhoto.cloneNode(true);
-          cardElemPhoto.src = item;
-          fragment.appendChild(cardElemPhoto);
-        }
-      });
-    }
-
-    if (fragment) {
-      card.querySelector('.popup__photos').appendChild(fragment);
-    }
     cardAvatar.src = dataPin.author.avatar;
+    getPhotos(card, offerPin);
+    delNoHasFeatures(hasFeaturesEnds, offerPin.features, cardFeatures, cardFeaturesParent);
 
     mapPinsContainer.insertAdjacentElement('beforebegin', card);
 
@@ -91,7 +113,8 @@
   };
 
   window.card = {
-    getCard: getCard
+    renderCard: renderCard,
+    housingType: housingType
   };
 
   var templateCard = document.querySelector('#card').content.querySelector('.map__card');
