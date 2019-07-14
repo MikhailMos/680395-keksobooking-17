@@ -231,8 +231,8 @@
       adForm.classList.remove('ad-form--disabled');
       window.utils.enumeratesArray(itemsAccessibilityControls);
 
-      pointAxisX = (mapPinMain.offsetLeft + window.const.MAIN_PIN_HALF_WIDTH);
-      pointAxisY = (mapPinMain.offsetTop + window.const.MAIN_PIN_HEIGHT);
+      pointAxisX = (mapPinMain.offsetLeft + window.const.mainPin.HALF_WIDTH);
+      pointAxisY = (mapPinMain.offsetTop + window.const.mainPin.HEIGHT);
       window.form.address.value = pointAxisX + ', ' + pointAxisY;
       addEventListenerFunctions();
       onRoomNumberCapacityChange();
@@ -260,8 +260,8 @@
 
         mapPinMain.style.top = coordsPinMain.y + 'px';
         mapPinMain.style.left = coordsPinMain.x + 'px';
-        pointAxisX = (mapPinMain.offsetLeft + window.const.MAIN_PIN_HALF_WIDTH);
-        pointAxisY = (mapPinMain.offsetTop + window.const.MAIN_PIN_HEIGHT);
+        pointAxisX = (mapPinMain.offsetLeft + window.const.mainPin.HALF_WIDTH);
+        pointAxisY = (mapPinMain.offsetTop + window.const.mainPin.HEIGHT);
         window.form.address.value = pointAxisX + ', ' + pointAxisY;
       };
 
@@ -288,11 +288,16 @@
 
   /**
    * нажатие на кнопку очистить на форме
+   *
+   * @param {object} evt - событие
    */
-  var onResetClick = function () {
+  var onResetClick = function (evt) {
     if (window.utils.isActive) {
 
-      var mapPins = map.querySelectorAll('.map__pin');
+      if (evt !== undefined) {
+        evt.preventDefault();
+      }
+      var mapPins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
       mapPins.forEach(function (item) {
         if (!item.classList.contains('map__pin--main')) {
           map.removeChild(item);
@@ -303,6 +308,7 @@
       });
 
       window.form.title.value = '';
+      window.form.price.value = '';
       window.form.address.value = (mapPinMain.offsetLeft) + ', ' + (mapPinMain.offsetTop);
       window.utils.enumeratesArray(itemsAccessibilityControls);
       window.utils.isActive = false;
@@ -339,10 +345,10 @@
   var roomNumber = adForm.querySelector('#room_number');
   var capacity = adForm.querySelector('#capacity');
 
-  var contrains = new Rect(window.const.MAP_Y_MIN - window.const.MAIN_PIN_HEIGHT,
-      map.offsetWidth - window.const.MAIN_PIN_HALF_WIDTH,
-      window.const.MAP_Y_MAX,
-      -window.const.MAIN_PIN_HALF_WIDTH);
+  var contrains = new Rect(window.const.mapRestriction.Y_MIN - window.const.mainPin.HEIGHT,
+      map.offsetWidth - window.const.mainPin.HALF_WIDTH,
+      window.const.mapRestriction.Y_MAX,
+      -window.const.mainPin.HALF_WIDTH);
   var defaultCoordsPinMain = new Coordinate(0, 0);
   var pointAxisX = mapPinMain.offsetLeft;
   var pointAxisY = mapPinMain.offsetTop;

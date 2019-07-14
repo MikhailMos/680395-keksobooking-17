@@ -30,7 +30,7 @@
      * Перебираем массив и устанавливаем значение свойству, каждого элемента
      * ф-я экспортная
      *
-     * @param {*} arr
+     * @param {array} arr
      */
     enumeratesArray: function (arr) {
       arr.forEach(getProperty);
@@ -44,7 +44,7 @@
      * @param {function} action - импортируемая функция
      */
     isEnterEvent: function (evt, action) {
-      if (evt.keyCode === window.const.ENTER_CODE) {
+      if (evt.keyCode === window.const.keyCode.ENTER) {
         action();
       }
     }

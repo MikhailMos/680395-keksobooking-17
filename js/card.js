@@ -24,7 +24,7 @@
   };
 
   var onCardEscPress = function (evt) {
-    if (evt.keyCode === window.const.ESC_CODE) {
+    if (evt.keyCode === window.const.keyCode.ESC) {
       onCardClick();
       document.removeEventListener('keydown', onCardEscPress);
     }
