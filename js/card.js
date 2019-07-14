@@ -20,6 +20,11 @@
     }
   };
 
+  /**
+   * Возвращает название типа жилья
+   * @param {string} type - название типа
+   * @return {string}
+   */
   var returnTextHousingType = function (type) {
     return housingType[type].name;
   };
@@ -38,16 +43,21 @@
     }
   };
 
-  var getPhotos = function (card, offerPin) {
+  /**
+   * Добавляет фотографии в карточку
+   * @param {element} card - шаблон модального окна с информацией об объявлении
+   * @param {array} offerPinPhotos - массив с сылками на фотографиями
+   */
+  var getPhotos = function (card, offerPinPhotos) {
     var templatePhoto = card.querySelector('.popup__photo');
     var photos = card.querySelector('.popup__photos');
 
-    if (!offerPin.photos.length) {
+    if (!offerPinPhotos.photos.length) {
       photos.removeChild(templatePhoto);
       return;
     }
 
-    offerPin.photos.forEach(function (item, i) {
+    offerPinPhotos.photos.forEach(function (item, i) {
       var cardElemPhoto = i ? templatePhoto.cloneNode(true) : templatePhoto;
       cardElemPhoto.src = item;
 
@@ -57,6 +67,12 @@
     });
   };
 
+  /**
+   * возвращает модификатор из наименования класса
+   *
+   * @param {element} item - текущий элемент
+   * @return {string}
+   */
   var getEnds = function (item) {
     return item.className.slice(item.className.lastIndexOf('-') + 1);
   };
@@ -66,6 +82,14 @@
     return arrCardFeatures.map(getEnds);
   };
 
+  /**
+   * Удаляет функции из разметки шаблона модального окна с информацией об объявлении
+   *
+   * @param {array} hasFeaturesEnds - массив строк с модификаторами классов модального окна
+   * @param {array} offerPinFeatures - массив строк с имеющимися функциями
+   * @param {array} cardFeatures - псевдо массив с элементами разметки функций
+   * @param {element} parent - родительский элемент
+   */
   var delNoHasFeatures = function (hasFeaturesEnds, offerPinFeatures, cardFeatures, parent) {
     hasFeaturesEnds.forEach(function (item, i) {
       if (offerPinFeatures.indexOf(item) === -1) {
@@ -74,6 +98,10 @@
     });
   };
 
+  /**
+   * Отрисовывает модальное окно с информации об объявлении
+   * @param {object} dataPin - данные об объявлении
+   */
   var renderCard = function (dataPin) {
     var offerPin = dataPin.offer;
     var card = templateCard.cloneNode(true);
@@ -103,7 +131,7 @@
     cardTextTime.textContent = 'Заезд после ' + offerPin.checkin + ', выезд до ' + offerPin.checkout;
     cardDescription.textContent = offerPin.description;
     cardAvatar.src = dataPin.author.avatar;
-    getPhotos(card, offerPin);
+    getPhotos(card, offerPin.photos);
     delNoHasFeatures(hasFeaturesEnds, offerPin.features, cardFeatures, cardFeaturesParent);
 
     mapPinsContainer.insertAdjacentElement('beforebegin', card);
