@@ -3,6 +3,11 @@
 (function () {
   var MAX_NUMBER_OF_PINS = 5;
 
+  var enumerationMapPin = {
+    HALF_WIDTH: 25,
+    HEIGHT: 70
+  };
+
   /**
    * возвращает пин как DOM-элемент
    *
@@ -13,8 +18,8 @@
     var userPinElement = userPin.cloneNode(true);
     var imgPin = userPinElement.querySelector('img');
 
-    userPinElement.style.left = (mapPin.location.x - window.const.mapPin.HALF_WIDTH) + 'px';
-    userPinElement.style.top = (mapPin.location.y - window.const.mapPin.HEIGHT) + 'px';
+    userPinElement.style.left = (mapPin.location.x - enumerationMapPin.HALF_WIDTH) + 'px';
+    userPinElement.style.top = (mapPin.location.y - enumerationMapPin.HEIGHT) + 'px';
     userPinElement.value = String(mapPin.location.x) + ', ' + String(mapPin.location.y);
 
     imgPin.src = mapPin.author.avatar;
