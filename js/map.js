@@ -113,8 +113,8 @@
    */
   var onSaveHandler = function (responsive) {
     if ((typeof (responsive) === 'object') && (JSON.stringify(responsive).length > 0)) {
-      adForm.removeEventListener('submit', saveToServer);
       onResetClick();
+      showSuccess();
     } else {
       onErrorHandler('Что-то пошло не так!');
     }
@@ -127,8 +127,65 @@
    */
   var onSuccessHandler = function (loadPins) {
     pins = loadPins.slice();
+  };
 
-    mapPinMain.addEventListener('mousedown', onMapPinMainMousedown);
+  /** Выводит сообщение об успешной отправке */
+  var showSuccess = function () {
+    var templateBlockSuccess = document.querySelector('#success').content.querySelector('.success');
+    var blockSuccess = templateBlockSuccess.cloneNode(true);
+
+    document.querySelector('main').appendChild(blockSuccess);
+
+    document.querySelector('.success').addEventListener('click', onBlockSuccessClick);
+    document.addEventListener('keydown', onSuccessESCKeydown);
+  };
+
+  /**
+   * Проверяет нажатие на кнопку ESC, когда блок .success показан
+   *
+   * @param {object} evt
+   */
+  var onSuccessESCKeydown = function (evt) {
+    window.utils.isESCEvent(evt, onBlockSuccessClick);
+  };
+
+  /** Удаляте блолк .success и убирает события связанные с ним */
+  var onBlockSuccessClick = function () {
+    var block = document.querySelector('.success');
+
+    block.removeEventListener('click', onBlockSuccessClick);
+    document.removeEventListener('keydown', onSuccessESCKeydown);
+
+    block.remove();
+  };
+
+  /**
+   * Проверяет нажатие на кнопку ESC, когда блок .error показан
+   *
+   * @param {object} evt
+   */
+  var onErrorESCKeydown = function (evt) {
+    window.utils.isESCEvent(evt, onErrorClick);
+  };
+
+  /** Удаляет блок .error и убирает события связанные с ним */
+  var onErrorClick = function () {
+    var blockError = document.querySelector('.error');
+    var btnError = document.querySelector('.error__button');
+
+    document.removeEventListener('keydown', onErrorESCKeydown);
+    blockError.removeEventListener('click', onErrorClick);
+    btnError.removeEventListener('click', onErrorClick);
+
+    blockError.remove();
+  };
+
+  /** Добавляет события для блока error */
+  var addEventErrorHandler = function () {
+    var btnError = document.querySelector('.error__button');
+    document.querySelector('.error').addEventListener('click', onErrorClick);
+    btnError.addEventListener('click', onErrorClick);
+    document.addEventListener('keydown', onErrorESCKeydown);
   };
 
   /**
@@ -139,7 +196,9 @@
   var onErrorHandler = function (messageError) {
     var fragment = document.createDocumentFragment();
     var templateError = document.querySelector('#error').content.querySelector('.error');
-    var templateErrorMessage = templateError.querySelector('.error__message');
+    var blockError = templateError.cloneNode(true);
+    var blockErrorMessage = blockError.querySelector('.error__message');
+
     var brElem = document.createElement('br');
     var spanElem = document.createElement('span');
 
@@ -147,11 +206,12 @@
     spanElem.style.fontSize = '30px';
     spanElem.style.fontWeight = '500';
 
-    templateErrorMessage.insertAdjacentElement('beforeEnd', brElem);
-    templateErrorMessage.insertAdjacentElement('beforeEnd', spanElem);
+    blockErrorMessage.insertAdjacentElement('beforeEnd', brElem);
+    blockErrorMessage.insertAdjacentElement('beforeEnd', spanElem);
 
-    fragment.appendChild(templateError);
+    fragment.appendChild(blockError);
     document.querySelector('main').appendChild(fragment);
+    addEventErrorHandler();
   };
 
   /**
@@ -222,6 +282,10 @@
     evt.preventDefault();
 
     if (!window.utils.isActive) {
+      if (!pins.length) {
+        window.backend.load(onSuccessHandler, onErrorHandler);
+        return;
+      }
 
       document.querySelector('.map').classList.remove('map--faded');
       window.renderPin(pins.slice());
@@ -244,7 +308,7 @@
       startCoords.y = evt.clientY;
 
       map.addEventListener('mousemove', onMouseMove);
-      map.addEventListener('mouseup', onMouseUp);
+      document.addEventListener('mouseup', onMouseUp);
     }
   };
 
@@ -279,7 +343,7 @@
     }
 
     map.removeEventListener('mousemove', onMouseMove);
-    map.removeEventListener('mouseup', onMouseUp);
+    document.removeEventListener('mouseup', onMouseUp);
   };
 
   /**
@@ -297,6 +361,15 @@
     var mapPins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
     mapPins.forEach(function (item) {
       map.removeChild(item);
+    });
+  };
+
+  /** Сброс значений в разделе Устройства */
+  var resetFeatures = function () {
+    var inputsFeatures = adForm.querySelectorAll('input[type=checkbox]:checked');
+
+    inputsFeatures.forEach(function (it) {
+      it.checked = false;
     });
   };
 
@@ -319,8 +392,11 @@
       price.value = '';
       typeOfHousing.selectedIndex = defaultIndexType;
       capacity.selectedIndex = defaultIndexCapcity;
+      timein.selectedIndex = defaultIndexTimein;
+      timeout.selectedIndex = defaultIndexTimeout;
       roomNumber.selectedIndex = defaultIndexRoomNumber;
       address.value = (mapPinMain.offsetLeft) + ', ' + (mapPinMain.offsetTop);
+      resetFeatures();
       window.utils.enumeratesArray(itemsAccessibilityControls);
       window.utils.isActiveDisabled();
       adForm.classList.add('ad-form--disabled');
@@ -328,6 +404,7 @@
 
       onTypeOfHousingChange();
       removeEventListenerFunctions();
+      adForm.removeEventListener('submit', saveToServer);
     }
   };
 
@@ -392,6 +469,8 @@
   var defaultIndexRoomNumber = roomNumber.selectedIndex;
   var defaultIndexCapcity = capacity.selectedIndex;
   var defaultIndexType = typeOfHousing.selectedIndex;
+  var defaultIndexTimein = timein.selectedIndex;
+  var defaultIndexTimeout = timeout.selectedIndex;
   var pointAxisX = mapPinMain.offsetLeft;
   var pointAxisY = mapPinMain.offsetTop;
   var pins = [];
@@ -404,6 +483,7 @@
     onTypeOfHousingChange();
   }
 
+  mapPinMain.addEventListener('mousedown', onMapPinMainMousedown);
   window.backend.load(onSuccessHandler, onErrorHandler);
 
 })();
