@@ -1,15 +1,14 @@
 'use strict';
 
 (function () {
-  var HousingTypePrice = {
-    BUNGALO: 0,
-    FLAT: 1000,
-    HOUSE: 5000,
-    PALACE: 10000
+  var enumerationMainPin = {
+    HALF_WIDTH: 32,
+    HEIGHT: 80
   };
 
   /**
    * Создает объект содержащий ограничения по осям
+   *
    * @constructor
    * @param {number} top - ограничение сверху по оси Y
    * @param {number} right ограничение справа по оси X
@@ -29,33 +28,49 @@
    * @constructor
    * @param {number} x - значение по оси X
    * @param {number} y - значение по оси Y
-   * @param {object} contrains - ограничения по осям X и Y
    */
-  var Coordinate = function (x, y, contrains) {
+  var Coordinate = function (x, y) {
     this.x = x;
     this.y = y;
-    this._contrains = contrains;
   };
 
-  Coordinate.prototype = {
-    setX: function (x) {
-      if (x < this._contrains.left) {
-        this.x = this._contrains.left;
-      } else if (x > this._contrains.right) {
-        this.x = this._contrains.right;
-      } else {
-        this.x = x;
-      }
-    },
-    setY: function (y) {
-      if (y < this._contrains.top) {
-        this.y = this._contrains.top;
-      } else if (y > this._contrains.bottom) {
-        this.y = this._contrains.bottom;
-      } else {
-        this.y = y;
-      }
+  /**
+   * Устанавливает значение по оси X, согласно ограничений
+   *
+   * @param {number} x - координата по оси X
+   * @return {number}
+   */
+  var setContrainsX = function (x) {
+    var result;
+    if (x < contrains.left) {
+      result = contrains.left;
+    } else if (x > contrains.right) {
+      result = contrains.right;
+    } else {
+      result = x;
     }
+
+    return result;
+  };
+
+  /**
+   * Устанавливает значение по оси Y, согласно ограничений
+   *
+   * @param {number} y - координата по оси Y
+   * @return {number}
+   */
+  var setContrainsY = function (y) {
+    var result;
+
+    if (y < contrains.top) {
+      result = contrains.top;
+    } else if (y > contrains.bottom) {
+      result = contrains.bottom;
+    } else {
+      result = y;
+    }
+
+    return result;
   };
 
   /**
@@ -75,23 +90,34 @@
    * Изменяет min для select и устанавливает значение в плейсхолдер
    */
   var onTypeOfHousingChange = function () {
-    var result;
-    switch (window.form.typeOfHousing.value) {
-      case 'palace':
-        result = HousingTypePrice.PALACE;
-        break;
-      case 'house':
-        result = HousingTypePrice.HOUSE;
-        break;
-      case 'flat':
-        result = HousingTypePrice.FLAT;
-        break;
-      default:
-        result = HousingTypePrice.BUNGALO;
-        break;
+    var result = window.card.housingType[typeOfHousing.value].price;
+
+    price.min = result;
+    price.placeholder = String(price.min);
+  };
+
+  /**
+   * Сохраняет данные на сервер
+   *
+   * @param {object} evt
+   */
+  var saveToServer = function (evt) {
+    window.backend.upload(new FormData(adForm), onSaveHandler, onErrorHandler);
+    evt.preventDefault();
+  };
+
+  /**
+   * Проверяет на заполненность и тип, объект загруженный на сервер
+   *
+   * @param {object} responsive - ответ от сервера
+   */
+  var onSaveHandler = function (responsive) {
+    if ((typeof (responsive) === 'object') && (JSON.stringify(responsive).length > 0)) {
+      onResetClick();
+      showSuccess();
+    } else {
+      onErrorHandler('Что-то пошло не так!');
     }
-    window.form.price.min = result;
-    window.form.price.placeholder = String(window.form.price.min);
   };
 
   /**
@@ -101,18 +127,78 @@
    */
   var onSuccessHandler = function (loadPins) {
     pins = loadPins.slice();
+  };
 
-    mapPinMain.addEventListener('mousedown', onMapPinMainMousedown);
+  /** Выводит сообщение об успешной отправке */
+  var showSuccess = function () {
+    var templateBlockSuccess = document.querySelector('#success').content.querySelector('.success');
+    var blockSuccess = templateBlockSuccess.cloneNode(true);
+
+    document.querySelector('main').appendChild(blockSuccess);
+
+    document.querySelector('.success').addEventListener('click', onBlockSuccessClick);
+    document.addEventListener('keydown', onSuccessESCKeydown);
+  };
+
+  /**
+   * Проверяет нажатие на кнопку ESC, когда блок .success показан
+   *
+   * @param {object} evt
+   */
+  var onSuccessESCKeydown = function (evt) {
+    window.utils.isESCEvent(evt, onBlockSuccessClick);
+  };
+
+  /** Удаляте блолк .success и убирает события связанные с ним */
+  var onBlockSuccessClick = function () {
+    var block = document.querySelector('.success');
+
+    block.removeEventListener('click', onBlockSuccessClick);
+    document.removeEventListener('keydown', onSuccessESCKeydown);
+
+    block.remove();
+  };
+
+  /**
+   * Проверяет нажатие на кнопку ESC, когда блок .error показан
+   *
+   * @param {object} evt
+   */
+  var onErrorESCKeydown = function (evt) {
+    window.utils.isESCEvent(evt, onErrorClick);
+  };
+
+  /** Удаляет блок .error и убирает события связанные с ним */
+  var onErrorClick = function () {
+    var blockError = document.querySelector('.error');
+    var btnError = document.querySelector('.error__button');
+
+    document.removeEventListener('keydown', onErrorESCKeydown);
+    blockError.removeEventListener('click', onErrorClick);
+    btnError.removeEventListener('click', onErrorClick);
+
+    blockError.remove();
+  };
+
+  /** Добавляет события для блока error */
+  var addEventErrorHandler = function () {
+    var btnError = document.querySelector('.error__button');
+    document.querySelector('.error').addEventListener('click', onErrorClick);
+    btnError.addEventListener('click', onErrorClick);
+    document.addEventListener('keydown', onErrorESCKeydown);
   };
 
   /**
    * Выводит сообщение об ошибке
+   *
    * @param {string} messageError - текст дополнительного сообщения
    */
   var onErrorHandler = function (messageError) {
     var fragment = document.createDocumentFragment();
     var templateError = document.querySelector('#error').content.querySelector('.error');
-    var templateErrorMessage = templateError.querySelector('.error__message');
+    var blockError = templateError.cloneNode(true);
+    var blockErrorMessage = blockError.querySelector('.error__message');
+
     var brElem = document.createElement('br');
     var spanElem = document.createElement('span');
 
@@ -120,11 +206,12 @@
     spanElem.style.fontSize = '30px';
     spanElem.style.fontWeight = '500';
 
-    templateErrorMessage.insertAdjacentElement('beforeEnd', brElem);
-    templateErrorMessage.insertAdjacentElement('beforeEnd', spanElem);
+    blockErrorMessage.insertAdjacentElement('beforeEnd', brElem);
+    blockErrorMessage.insertAdjacentElement('beforeEnd', spanElem);
 
-    fragment.appendChild(templateError);
+    fragment.appendChild(blockError);
     document.querySelector('main').appendChild(fragment);
+    addEventErrorHandler();
   };
 
   /**
@@ -133,7 +220,7 @@
   var onFilterChange = function () {
     var sortPins = pins.slice();
 
-    window.render.renderPin(sortPins.filter(function (item) {
+    window.renderPin(sortPins.filter(function (item) {
       if (filterHousingType.value === 'any') {
         return true;
       } else {
@@ -142,6 +229,7 @@
     }));
   };
 
+  /** Валидация поля Количество мест, в зависимости от количества комнат */
   var onRoomNumberCapacityChange = function () {
     var textMessage = '';
     if (roomNumber.value === '100' && (capacity.value !== '0')) {
@@ -159,9 +247,9 @@
 
   /** Добавляются события */
   var addEventListenerFunctions = function () {
-    window.form.typeOfHousing.addEventListener('change', onTypeOfHousingChange);
-    window.form.adFormReset.addEventListener('click', onResetClick);
-    window.form.adFormReset.addEventListener('keydown', onResetKeydown);
+    typeOfHousing.addEventListener('change', onTypeOfHousingChange);
+    adFormReset.addEventListener('click', onResetClick);
+    adFormReset.addEventListener('keydown', onResetKeydown);
     timein.addEventListener('change', onTimeInOutChange);
     timeout.addEventListener('change', onTimeInOutChange);
     roomNumber.addEventListener('change', onRoomNumberCapacityChange);
@@ -173,9 +261,9 @@
 
   /** Удаляются события */
   var removeEventListenerFunctions = function () {
-    window.form.adFormReset.removeEventListener('click', onResetClick);
-    window.form.adFormReset.removeEventListener('keydown', onResetKeydown);
-    window.form.typeOfHousing.removeEventListener('change', onTypeOfHousingChange);
+    adFormReset.removeEventListener('click', onResetClick);
+    adFormReset.removeEventListener('keydown', onResetKeydown);
+    typeOfHousing.removeEventListener('change', onTypeOfHousingChange);
     timein.removeEventListener('change', onTimeInOutChange);
     timeout.removeEventListener('change', onTimeInOutChange);
     roomNumber.removeEventListener('change', onRoomNumberCapacityChange);
@@ -194,96 +282,129 @@
     evt.preventDefault();
 
     if (!window.utils.isActive) {
-
-      document.querySelector('.map').classList.remove('map--faded');
-      window.render.renderPin(pins.slice());
-
-      if ((defaultCoordsPinMain.x === 0) && (defaultCoordsPinMain.y === 0)) {
-        defaultCoordsPinMain.x = mapPinMain.offsetLeft;
-        defaultCoordsPinMain.y = mapPinMain.offsetTop;
+      if (!pins.length) {
+        window.backend.load(onSuccessHandler, onErrorHandler);
+        return;
       }
 
-      window.utils.isActive = true;
+      document.querySelector('.map').classList.remove('map--faded');
+      window.renderPin(pins.slice());
+
+      window.utils.isActiveEnabled();
       adForm.classList.remove('ad-form--disabled');
       window.utils.enumeratesArray(itemsAccessibilityControls);
 
-      pointAxisX = (mapPinMain.offsetLeft + window.const.MAIN_PIN_HALF_WIDTH);
-      pointAxisY = (mapPinMain.offsetTop + window.const.MAIN_PIN_HEIGHT);
-      window.form.address.value = pointAxisX + ', ' + pointAxisY;
+      pointAxisX = (mapPinMain.offsetLeft + enumerationMainPin.HALF_WIDTH);
+      pointAxisY = (mapPinMain.offsetTop + enumerationMainPin.HEIGHT);
+      address.value = pointAxisX + ', ' + pointAxisY;
       addEventListenerFunctions();
       onRoomNumberCapacityChange();
 
+      adForm.addEventListener('submit', saveToServer);
+
     } else {
 
-      /**
-       * событие перемещения мыши
-       *
-       * @param {object} moveEvt
-       */
-      var onMouseMove = function (moveEvt) {
-        moveEvt.preventDefault();
-
-        var shift = new Coordinate(startCoords.x - moveEvt.clientX, startCoords.y - moveEvt.clientY);
-
-        var coordsPinMain = new Coordinate(0, 0, contrains);
-        coordsPinMain.setX(mapPinMain.offsetLeft - shift.x);
-        coordsPinMain.setY(mapPinMain.offsetTop - shift.y);
-
-        startCoords.x = moveEvt.clientX;
-        startCoords.y = moveEvt.clientY;
-
-        mapPinMain.style.top = coordsPinMain.y + 'px';
-        mapPinMain.style.left = coordsPinMain.x + 'px';
-        pointAxisX = (mapPinMain.offsetLeft + window.const.MAIN_PIN_HALF_WIDTH);
-        pointAxisY = (mapPinMain.offsetTop + window.const.MAIN_PIN_HEIGHT);
-        window.form.address.value = pointAxisX + ', ' + pointAxisY;
-      };
-
-      /**
-       * Событие при отпускании кнопки мыши
-       *
-       * @param {object} upEvt
-       */
-      var onMouseUp = function (upEvt) {
-        if (upEvt !== undefined) {
-          upEvt.preventDefault();
-        }
-
-        map.removeEventListener('mousemove', onMouseMove);
-        map.removeEventListener('mouseup', onMouseUp);
-      };
-
-      var startCoords = new Coordinate(evt.clientX, evt.clientY);
+      startCoords.x = evt.clientX;
+      startCoords.y = evt.clientY;
 
       map.addEventListener('mousemove', onMouseMove);
-      map.addEventListener('mouseup', onMouseUp);
+      document.addEventListener('mouseup', onMouseUp);
     }
   };
 
   /**
-   * нажатие на кнопку очистить на форме
+   * событие перемещения мыши
+   *
+   * @param {object} moveEvt
    */
-  var onResetClick = function () {
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+
+    var shift = new Coordinate(startCoords.x - moveEvt.clientX, startCoords.y - moveEvt.clientY);
+
+    startCoords.x = moveEvt.clientX;
+    startCoords.y = moveEvt.clientY;
+
+    mapPinMain.style.top = setContrainsY(mapPinMain.offsetTop - shift.y) + 'px';
+    mapPinMain.style.left = setContrainsX(mapPinMain.offsetLeft - shift.x) + 'px';
+    pointAxisX = (mapPinMain.offsetLeft + enumerationMainPin.HALF_WIDTH);
+    pointAxisY = (mapPinMain.offsetTop + enumerationMainPin.HEIGHT);
+    address.value = pointAxisX + ', ' + pointAxisY;
+  };
+
+  /**
+   * Событие при отпускании кнопки мыши
+   *
+   * @param {object} upEvt
+   */
+  var onMouseUp = function (upEvt) {
+    if (upEvt !== undefined) {
+      upEvt.preventDefault();
+    }
+
+    map.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  };
+
+  /**
+   * Сбрасывает координаты основной метки по умолчанию
+   */
+  var resetMainPinToDefault = function () {
+    mapPinMain.style.top = defaultCoordsPinMain.y + 'px';
+    mapPinMain.style.left = defaultCoordsPinMain.x + 'px';
+  };
+
+  /**
+   * Удаляет метки с объявлениями
+   */
+  var removePin = function () {
+    var mapPins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
+    mapPins.forEach(function (item) {
+      map.removeChild(item);
+    });
+  };
+
+  /** Сброс значений в разделе Устройства */
+  var resetFeatures = function () {
+    var inputsFeatures = adForm.querySelectorAll('input[type=checkbox]:checked');
+
+    inputsFeatures.forEach(function (it) {
+      it.checked = false;
+    });
+  };
+
+  /**
+   * нажатие на кнопку очистить на форме
+   *
+   * @param {object} evt - событие
+   */
+  var onResetClick = function (evt) {
     if (window.utils.isActive) {
 
-      var mapPins = map.querySelectorAll('.map__pin');
-      mapPins.forEach(function (item) {
-        if (!item.classList.contains('map__pin--main')) {
-          map.removeChild(item);
-        } else {
-          item.style.top = defaultCoordsPinMain.y + 'px';
-          item.style.left = defaultCoordsPinMain.x + 'px';
-        }
-      });
+      if (evt !== undefined) {
+        evt.preventDefault();
+      }
 
-      window.form.address.value = (mapPinMain.offsetLeft) + ', ' + (mapPinMain.offsetTop);
+      removePin();
+      resetMainPinToDefault();
+
+      title.value = '';
+      price.value = '';
+      typeOfHousing.selectedIndex = defaultIndexType;
+      capacity.selectedIndex = defaultIndexCapcity;
+      timein.selectedIndex = defaultIndexTimein;
+      timeout.selectedIndex = defaultIndexTimeout;
+      roomNumber.selectedIndex = defaultIndexRoomNumber;
+      address.value = (mapPinMain.offsetLeft) + ', ' + (mapPinMain.offsetTop);
+      resetFeatures();
       window.utils.enumeratesArray(itemsAccessibilityControls);
-      window.utils.isActive = false;
+      window.utils.isActiveDisabled();
       adForm.classList.add('ad-form--disabled');
       document.querySelector('.map').classList.add('map--faded');
-      removeEventListenerFunctions();
-      window.form.typeOfHousing.selectedIndex = 1;
+
       onTypeOfHousingChange();
+      removeEventListenerFunctions();
+      adForm.removeEventListener('submit', saveToServer);
     }
   };
 
@@ -296,37 +417,73 @@
     window.utils.isEnterEvent(evt, onResetClick);
   };
 
+  /**
+   * Возврщет массив элементов страницы
+   *
+   * @param {object} selectFilters - поля выбора фильтра (NodeList)
+   * @param {object} fieldsetFilters - поле фильтра с кнопкми (NodeList)
+   * @param {object} fieldsetForm - поля формы (NodeList)
+   * @return {array}
+   */
+  var getArrElements = function (selectFilters, fieldsetFilters, fieldsetForm) {
+    var arrSelectsFilters = Array.from(selectFilters);
+    var arrFieldsetsFilters = Array.from(fieldsetFilters);
+    var arrFieldsetsForm = Array.from(fieldsetForm);
+
+    return arrSelectsFilters.concat(arrFieldsetsFilters, arrFieldsetsForm);
+  };
+
   var map = document.querySelector('.map__pins');
   var mapPinMain = map.querySelector('.map__pin--main');
+  /**
+   * элементы фильтра карты
+   */
   var mapFilters = document.querySelector('.map__filters');
   var selectsMapFilters = mapFilters.querySelectorAll('select');
   var fieldsetsMapFilters = mapFilters.querySelectorAll('fieldset');
-  var arrSelectsMapFilters = Array.from(selectsMapFilters);
-  var arrFieldsetsMapFilters = Array.from(fieldsetsMapFilters);
-  var arrFieldsetsAdForm = Array.from(window.form.fieldsetsAdForm);
-  var itemsAccessibilityControls = arrSelectsMapFilters.concat(arrFieldsetsMapFilters, arrFieldsetsAdForm);
+
   var filterHousingType = mapFilters.querySelector('#housing-type');
+  /**
+   * элементы формы
+   */
   var adForm = document.querySelector('.ad-form');
+  var adFormReset = adForm.querySelector('.ad-form__reset');
+  var address = adForm.querySelector('#address');
+  var typeOfHousing = adForm.querySelector('#type');
+  var price = adForm.querySelector('#price');
+  var title = adForm.querySelector('#title');
+  var fieldsetsAdForm = adForm.querySelectorAll('fieldset');
   var timein = adForm.querySelector('#timein');
   var timeout = adForm.querySelector('#timeout');
   var roomNumber = adForm.querySelector('#room_number');
   var capacity = adForm.querySelector('#capacity');
-
-  var contrains = new Rect(window.const.MAP_Y_MIN - window.const.MAIN_PIN_HEIGHT,
-      map.offsetWidth - window.const.MAIN_PIN_HALF_WIDTH,
-      window.const.MAP_Y_MAX,
-      -window.const.MAIN_PIN_HALF_WIDTH);
-  var defaultCoordsPinMain = new Coordinate(0, 0);
+  /**
+   * значения по умолчанию
+   */
+  var itemsAccessibilityControls = getArrElements(selectsMapFilters, fieldsetsMapFilters, fieldsetsAdForm);
+  var contrains = new Rect(window.const.mapRestriction.Y_MIN - enumerationMainPin.HEIGHT,
+      map.offsetWidth - enumerationMainPin.HALF_WIDTH,
+      window.const.mapRestriction.Y_MAX,
+      -enumerationMainPin.HALF_WIDTH);
+  var defaultCoordsPinMain = new Coordinate(mapPinMain.offsetLeft, mapPinMain.offsetTop);
+  var defaultIndexRoomNumber = roomNumber.selectedIndex;
+  var defaultIndexCapcity = capacity.selectedIndex;
+  var defaultIndexType = typeOfHousing.selectedIndex;
+  var defaultIndexTimein = timein.selectedIndex;
+  var defaultIndexTimeout = timeout.selectedIndex;
   var pointAxisX = mapPinMain.offsetLeft;
   var pointAxisY = mapPinMain.offsetTop;
   var pins = [];
 
+  var startCoords = new Coordinate(mapPinMain.offsetLeft, mapPinMain.offsetTop);
+
   if (!window.utils.isActive) {
-    window.form.address.value = pointAxisX + ', ' + pointAxisY;
+    address.value = pointAxisX + ', ' + pointAxisY;
     window.utils.enumeratesArray(itemsAccessibilityControls);
     onTypeOfHousingChange();
   }
 
+  mapPinMain.addEventListener('mousedown', onMapPinMainMousedown);
   window.backend.load(onSuccessHandler, onErrorHandler);
 
 })();

@@ -11,42 +11,55 @@
     item.disabled = window.utils.isActive !== true;
   };
 
-  window.utils = {
-    isActive: false,
-
-    /**
-     * Получаем случайное целое число
-     * ф-я экспортная
-     *
-     * @param {number} min - начальное значение
-     * @param {number} max - конечное значение
-     * @return {number}
-     */
-    getRandomInt: function (min, max) {
-      return Math.floor(Math.random() * (max - min)) + min;
-    },
-
-    /**
-     * Перебираем массив и устанавливаем значение свойству, каждого элемента
-     * ф-я экспортная
-     *
-     * @param {*} arr
-     */
-    enumeratesArray: function (arr) {
-      arr.forEach(getProperty);
-    },
-
-    /**
-     * Отлавнивает нажатие на кнопку энтер
-     * ф-я экспортная
-     *
-     * @param {object} evt
-     * @param {function} action - импортируемая функция
-     */
-    isEnterEvent: function (evt, action) {
-      if (evt.keyCode === window.const.ENTER_CODE) {
-        action();
-      }
+  /**
+   * Отлавнивает нажатие на кнопку Enter
+   *
+   * @param {object} evt
+   * @param {function} action - импортируемая функция
+   */
+  var isEnterEvent = function (evt, action) {
+    if (evt.keyCode === window.const.keyCode.ENTER) {
+      action();
     }
+  };
+
+  /**
+   * Отлавнивает нажатие на кнопку ESC
+   *
+   * @param {object} evt
+   * @param {function} action - импортируемая функция
+   */
+  var isESCEvent = function (evt, action) {
+    if (evt.keyCode === window.const.keyCode.ESC) {
+      action();
+    }
+  };
+
+  /**
+   * Перебираем массив и устанавливаем значение свойству, каждого элемента
+   *
+   * @param {array} arr
+   */
+  var enumeratesArray = function (arr) {
+    arr.forEach(getProperty);
+  };
+
+  var isActiveEnabled = function () {
+    window.utils.isActive = true;
+  };
+
+  var isActiveDisabled = function () {
+    window.utils.isActive = false;
+  };
+
+  var isActive = false;
+
+  window.utils = {
+    isActive: isActive,
+    isActiveEnabled: isActiveEnabled,
+    isActiveDisabled: isActiveDisabled,
+    enumeratesArray: enumeratesArray,
+    isEnterEvent: isEnterEvent,
+    isESCEvent: isESCEvent
   };
 })();
