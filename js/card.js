@@ -52,12 +52,12 @@
     var templatePhoto = card.querySelector('.popup__photo');
     var photos = card.querySelector('.popup__photos');
 
-    if (!offerPinPhotos.photos.length) {
+    if (!offerPinPhotos.length) {
       photos.removeChild(templatePhoto);
       return;
     }
 
-    offerPinPhotos.photos.forEach(function (item, i) {
+    offerPinPhotos.forEach(function (item, i) {
       var cardElemPhoto = i ? templatePhoto.cloneNode(true) : templatePhoto;
       cardElemPhoto.src = item;
 
