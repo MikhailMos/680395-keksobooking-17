@@ -216,17 +216,69 @@
 
   /**
    * Фильтрует список данных
+   *
    */
   var onFilterChange = function () {
-    var sortPins = pins.slice();
+    var sortPins = sortingPins(pins.slice());
 
-    window.renderPin(sortPins.filter(function (item) {
-      if (filterHousingType.value === 'any') {
-        return true;
+    window.debounce(function () {
+      window.renderPin(sortPins);
+    });
+  };
+
+  /**
+   * Фильтрует массив, согласно выбранных фильтров
+   *
+   * @param {array} copyPins - массив для сортировки
+   * @return {array}
+   */
+  var sortingPins = function (copyPins) {
+    return copyPins.filter(function (item) {
+      var resType = filterHousingType.value === 'any' ? true : (item.offer.type === filterHousingType.value);
+      var resPrice = getPrice(item.offer.price);
+      var resRoom = filterHousingRooms.value === 'any' ? true : (item.offer.rooms === parseInt(filterHousingRooms.value, 10));
+      var resGuests = filterHousingGuests.value === 'any' ? true : (item.offer.guests === parseInt(filterHousingGuests.value, 10));
+      getFilterFeatures(item.offer.features);
+
+      return resType && resPrice && resRoom && resGuests
+        && resFilterFeatures.wifi && resFilterFeatures.dishwasher
+        && resFilterFeatures.parging && resFilterFeatures.washer
+        && resFilterFeatures.elevator && resFilterFeatures.conditioner;
+    });
+  };
+
+  /**
+   * Возвращает сравнение цены, попадает ли цена в выбранный фильтр
+   *
+   * @param {number} item - стоимость
+   * @return {boolean}
+   */
+  var getPrice = function (item) {
+    if (filterHousingPrice.value === 'any') {
+      return true;
+    } else if (filterHousingPrice.value === 'low') {
+      return item < 10000;
+    } else if (filterHousingPrice.value === 'middle') {
+      return item >= 10000 && item < 50000;
+    } else {
+      return item >= 50000;
+    }
+  };
+
+  /**
+   * Проверяет и устанавливает значение фильтра (true/false),
+   * в зависимости от содержания функций в пине
+   *
+   * @param {array} dataPinFeatures - массив функций пина
+   */
+  var getFilterFeatures = function (dataPinFeatures) {
+    inputsFeaturesFilter.forEach(function (item) {
+      if (item.checked) {
+        resFilterFeatures[item.value] = (dataPinFeatures.indexOf(item.value) === -1) ? false : true;
       } else {
-        return item.offer.type === filterHousingType.value;
+        resFilterFeatures[item.value] = true;
       }
-    }));
+    });
   };
 
   /** Валидация поля Количество мест, в зависимости от количества комнат */
@@ -254,7 +306,7 @@
     timeout.addEventListener('change', onTimeInOutChange);
     roomNumber.addEventListener('change', onRoomNumberCapacityChange);
     capacity.addEventListener('change', onRoomNumberCapacityChange);
-    selectsMapFilters.forEach(function (item) {
+    allFilterFields.forEach(function (item) {
       item.addEventListener('change', onFilterChange);
     });
   };
@@ -268,7 +320,7 @@
     timeout.removeEventListener('change', onTimeInOutChange);
     roomNumber.removeEventListener('change', onRoomNumberCapacityChange);
     capacity.removeEventListener('change', onRoomNumberCapacityChange);
-    selectsMapFilters.forEach(function (item) {
+    allFilterFields.forEach(function (item) {
       item.removeEventListener('change', onFilterChange);
     });
   };
@@ -366,11 +418,12 @@
 
   /** Сброс значений в разделе Устройства */
   var resetFeatures = function () {
-    var inputsFeatures = adForm.querySelectorAll('input[type=checkbox]:checked');
+    var inputsFeaturesChecked = adForm.querySelectorAll('input[type=checkbox]:checked');
 
-    inputsFeatures.forEach(function (it) {
+    inputsFeaturesChecked.forEach(function (it) {
       it.checked = false;
     });
+
   };
 
   /**
@@ -439,10 +492,23 @@
    * элементы фильтра карты
    */
   var mapFilters = document.querySelector('.map__filters');
-  var selectsMapFilters = mapFilters.querySelectorAll('select');
-  var fieldsetsMapFilters = mapFilters.querySelectorAll('fieldset');
+  var selectsMapFilters = mapFilters.querySelectorAll('.map__filter');
+  var fieldsetsMapFilters = mapFilters.querySelector('.map__features');
+  var inputsFeaturesFilter = mapFilters.querySelectorAll('.map__checkbox');
+  var allFilterFields = Array.from(selectsMapFilters).concat(Array.from(inputsFeaturesFilter));
 
   var filterHousingType = mapFilters.querySelector('#housing-type');
+  var filterHousingPrice = mapFilters.querySelector('#housing-price');
+  var filterHousingRooms = mapFilters.querySelector('#housing-rooms');
+  var filterHousingGuests = mapFilters.querySelector('#housing-guests');
+  var resFilterFeatures = {
+    wifi: true,
+    dishwasher: true,
+    parging: true,
+    washer: true,
+    elevator: true,
+    conditioner: true
+  };
   /**
    * элементы формы
    */
