@@ -15,7 +15,7 @@
    * @return {boolean}
    */
   var isEmptyObject = function (obj) {
-    return Object.keys(obj).length !== 0;
+    return Object.keys(obj).length === 0;
   };
 
   /**
@@ -60,7 +60,7 @@
     var fragment = document.createDocumentFragment();
     var takeNumber = data.length > MAX_NUMBER_OF_PINS ? MAX_NUMBER_OF_PINS : data.length;
     for (var i = 0; i < takeNumber; i++) {
-      if (isEmptyObject(data[i].offer)) {
+      if ((data[i].offer !== undefined) && !isEmptyObject(data[i].offer)) {
         fragment.appendChild(getTemplatePin(data[i]));
       }
     }
