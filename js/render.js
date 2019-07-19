@@ -36,7 +36,12 @@
     imgPin.alt = mapPin.offer.title;
 
     userPinElement.addEventListener('click', function () {
+      userPinElement.classList.add('map__pin--active');
       window.card.renderCard(mapPin);
+    });
+
+    userPinElement.addEventListener('blur', function () {
+      userPinElement.classList.remove('map__pin--active');
     });
 
     return userPinElement;
