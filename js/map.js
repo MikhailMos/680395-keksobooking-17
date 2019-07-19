@@ -452,7 +452,7 @@
       timein.selectedIndex = defaultIndexTimein;
       timeout.selectedIndex = defaultIndexTimeout;
       roomNumber.selectedIndex = defaultIndexRoomNumber;
-      address.value = (mapPinMain.offsetLeft) + ', ' + (mapPinMain.offsetTop);
+      address.value = (defaultCoordsPinMain.x + (mapPinMain.firstElementChild.width / 2)) + ', ' + (defaultCoordsPinMain.y + (mapPinMain.firstElementChild.height / 2));
       resetFeatures();
       window.utils.enumeratesArray(itemsAccessibilityControls);
       window.utils.isActiveDisabled();
@@ -537,14 +537,14 @@
       map.offsetWidth - enumerationMainPin.HALF_WIDTH,
       window.const.mapRestriction.Y_MAX,
       -enumerationMainPin.HALF_WIDTH);
-  var defaultCoordsPinMain = new Coordinate(mapPinMain.offsetLeft + (mapPinMain.firstElementChild.width / 2), mapPinMain.offsetTop + (mapPinMain.firstElementChild.height / 2));
+  var defaultCoordsPinMain = new Coordinate(mapPinMain.offsetLeft, mapPinMain.offsetTop);
   var defaultIndexRoomNumber = roomNumber.selectedIndex;
   var defaultIndexCapcity = capacity.selectedIndex;
   var defaultIndexType = typeOfHousing.selectedIndex;
   var defaultIndexTimein = timein.selectedIndex;
   var defaultIndexTimeout = timeout.selectedIndex;
-  var pointAxisX = defaultCoordsPinMain.x;
-  var pointAxisY = defaultCoordsPinMain.y;
+  var pointAxisX = defaultCoordsPinMain.x + (mapPinMain.firstElementChild.width / 2);
+  var pointAxisY = defaultCoordsPinMain.y + (mapPinMain.firstElementChild.height / 2);
   var pins = [];
 
   var startCoords = new Coordinate(pointAxisX, pointAxisY);
