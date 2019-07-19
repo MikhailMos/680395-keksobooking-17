@@ -537,17 +537,17 @@
       map.offsetWidth - enumerationMainPin.HALF_WIDTH,
       window.const.mapRestriction.Y_MAX,
       -enumerationMainPin.HALF_WIDTH);
-  var defaultCoordsPinMain = new Coordinate(mapPinMain.offsetLeft, mapPinMain.offsetTop);
+  var defaultCoordsPinMain = new Coordinate(mapPinMain.offsetLeft + (mapPinMain.firstElementChild.width / 2), mapPinMain.offsetTop + (mapPinMain.firstElementChild.height / 2));
   var defaultIndexRoomNumber = roomNumber.selectedIndex;
   var defaultIndexCapcity = capacity.selectedIndex;
   var defaultIndexType = typeOfHousing.selectedIndex;
   var defaultIndexTimein = timein.selectedIndex;
   var defaultIndexTimeout = timeout.selectedIndex;
-  var pointAxisX = mapPinMain.offsetLeft;
-  var pointAxisY = mapPinMain.offsetTop;
+  var pointAxisX = defaultCoordsPinMain.x;
+  var pointAxisY = defaultCoordsPinMain.y;
   var pins = [];
 
-  var startCoords = new Coordinate(mapPinMain.offsetLeft, mapPinMain.offsetTop);
+  var startCoords = new Coordinate(pointAxisX, pointAxisY);
 
   if (!window.utils.isActive) {
     address.value = pointAxisX + ', ' + pointAxisY;
