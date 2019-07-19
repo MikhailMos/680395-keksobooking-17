@@ -338,6 +338,21 @@
   var onMapPinMainMousedown = function (evt) {
     evt.preventDefault();
 
+    startCoords.x = evt.clientX;
+    startCoords.y = evt.clientY;
+
+    map.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
+
+  /**
+   * событие перемещения мыши
+   *
+   * @param {object} moveEvt
+   */
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+
     if (!window.utils.isActive) {
       if (!pins.length) {
         window.backend.load(onSuccessHandler, onErrorHandler);
@@ -358,24 +373,7 @@
       onRoomNumberCapacityChange();
 
       adForm.addEventListener('submit', saveToServer);
-
-    } else {
-
-      startCoords.x = evt.clientX;
-      startCoords.y = evt.clientY;
-
-      map.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
     }
-  };
-
-  /**
-   * событие перемещения мыши
-   *
-   * @param {object} moveEvt
-   */
-  var onMouseMove = function (moveEvt) {
-    moveEvt.preventDefault();
 
     var shift = new Coordinate(startCoords.x - moveEvt.clientX, startCoords.y - moveEvt.clientY);
 
