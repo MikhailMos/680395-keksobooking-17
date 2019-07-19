@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+
   var enumerationMainPin = {
     HALF_WIDTH: 32,
     HEIGHT: 80
@@ -309,6 +310,8 @@
     allFilterFields.forEach(function (item) {
       item.addEventListener('change', onFilterChange);
     });
+    zoneAvatarFileChooser.addEventListener('change', window.uploadFiles.uploadAvatar);
+    zonePicturesFileChooser.addEventListener('change', window.uploadFiles.uploadPhoto);
   };
 
   /** Удаляются события */
@@ -323,6 +326,8 @@
     allFilterFields.forEach(function (item) {
       item.removeEventListener('change', onFilterChange);
     });
+    zoneAvatarFileChooser.removeEventListener('change', window.uploadFiles.uploadAvatar);
+    zonePicturesFileChooser.removeEventListener('change', window.uploadFiles.uploadPhoto);
   };
 
   /**
@@ -440,6 +445,7 @@
 
       removePin();
       resetMainPinToDefault();
+      window.uploadFiles.resetUploadFiles();
 
       title.value = '';
       price.value = '';
@@ -523,6 +529,8 @@
   var timeout = adForm.querySelector('#timeout');
   var roomNumber = adForm.querySelector('#room_number');
   var capacity = adForm.querySelector('#capacity');
+  var zoneAvatarFileChooser = document.querySelector('.ad-form__field');
+  var zonePicturesFileChooser = document.querySelector('.ad-form__upload');
   /**
    * значения по умолчанию
    */
