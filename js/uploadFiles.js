@@ -50,9 +50,11 @@
     previewAvatar.src = DEFAULT_AVATAR_SRC;
 
     previewFiles.forEach(function (item, i) {
-      if (i === 0) {
+      if (i === 0 && item.firstElementChild) {
         item.removeChild(item.firstElementChild);
-      } else {
+      }
+
+      if (i) {
         photoContainer.removeChild(item);
       }
     });
