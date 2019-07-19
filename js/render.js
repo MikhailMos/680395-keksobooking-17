@@ -9,6 +9,16 @@
   };
 
   /**
+   * Проверяет объект на пустоту
+   *
+   * @param {object} obj  - проверяемый объект
+   * @return {boolean}
+   */
+  var isEmptyObject = function (obj) {
+    return Object.keys(obj).length !== 0;
+  };
+
+  /**
    * возвращает пин как DOM-элемент
    *
    * @param {object} mapPin - заполненный пин в Pin
@@ -50,7 +60,9 @@
     var fragment = document.createDocumentFragment();
     var takeNumber = data.length > MAX_NUMBER_OF_PINS ? MAX_NUMBER_OF_PINS : data.length;
     for (var i = 0; i < takeNumber; i++) {
-      fragment.appendChild(getTemplatePin(data[i]));
+      if (isEmptyObject(data[i].offer)) {
+        fragment.appendChild(getTemplatePin(data[i]));
+      }
     }
     map.appendChild(fragment);
   };
