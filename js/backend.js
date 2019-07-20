@@ -8,8 +8,8 @@
   /**
    * Возвращает объект к дальнейшему запросу к серверу
    *
-   * @param {object} onSuccess - функция onSuccessHandler (при загрузке), onSaveHandler (при отправке)
-   * @param {string} onError - функция onErrorHandler
+   * @param {object} onSuccess - функция loadSuccess (при загрузке), checkFillin (при отправке)
+   * @param {string} onError - функция showError
    * @return {object}
    */
   var getXhr = function (onSuccess, onError) {
@@ -34,8 +34,8 @@
   /**
    * Загружает данные с сервера
    *
-   * @param {object} onSuccess - функция onSuccessHandler
-   * @param {string} onError - функция onErrorHandler
+   * @param {object} onSuccess - функция loadSuccess
+   * @param {string} onError - функция showError
    */
   var load = function (onSuccess, onError) {
     var xhr = getXhr(onSuccess, onError);
@@ -54,8 +54,8 @@
    * Отправляет данные формы на сервер
    *
    * @param {object} data - заполненная форма для отправки на сервер
-   * @param {object} onSuccess - функция onSaveHandler
-   * @param {string} onError - функция onErrorHandler
+   * @param {object} onSuccess - функция checkFillin
+   * @param {string} onError - функция showError
    */
   var upload = function (data, onSuccess, onError) {
     var xhr = getXhr(onSuccess, onError);

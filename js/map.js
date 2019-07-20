@@ -103,7 +103,7 @@
    * @param {object} evt
    */
   var saveToServer = function (evt) {
-    window.backend.upload(new FormData(adForm), onSaveHandler, onErrorHandler);
+    window.backend.upload(new FormData(adForm), checkFillin, showError);
     evt.preventDefault();
   };
 
@@ -112,12 +112,12 @@
    *
    * @param {object} responsive - ответ от сервера
    */
-  var onSaveHandler = function (responsive) {
+  var checkFillin = function (responsive) {
     if ((typeof (responsive) === 'object') && (JSON.stringify(responsive).length > 0)) {
       onResetClick();
       showSuccess();
     } else {
-      onErrorHandler('Что-то пошло не так!');
+      showError('Что-то пошло не так!');
     }
   };
 
@@ -126,7 +126,7 @@
    *
    * @param {array} loadPins - содержит массив с информацией о загружаемых пинах
    */
-  var onSuccessHandler = function (loadPins) {
+  var loadSuccess = function (loadPins) {
     pins = loadPins.slice();
   };
 
@@ -194,7 +194,7 @@
    *
    * @param {string} messageError - текст дополнительного сообщения
    */
-  var onErrorHandler = function (messageError) {
+  var showError = function (messageError) {
     var fragment = document.createDocumentFragment();
     var templateError = document.querySelector('#error').content.querySelector('.error');
     var blockError = templateError.cloneNode(true);
@@ -357,7 +357,7 @@
 
     if (!window.utils.isActive) {
       if (!pins.length) {
-        window.backend.load(onSuccessHandler, onErrorHandler);
+        window.backend.load(loadSuccess, showError);
         return;
       }
 
@@ -558,6 +558,6 @@
   }
 
   mapPinMain.addEventListener('mousedown', onMapPinMainMousedown);
-  window.backend.load(onSuccessHandler, onErrorHandler);
+  window.backend.load(loadSuccess, showError);
 
 })();
