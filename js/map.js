@@ -172,20 +172,20 @@
   /** Удаляет блок .error и убирает события связанные с ним */
   var onErrorClick = function () {
     var blockError = document.querySelector('.error');
-    var btnError = document.querySelector('.error__button');
+    var buttonError = document.querySelector('.error__button');
 
     document.removeEventListener('keydown', onErrorESCKeydown);
     blockError.removeEventListener('click', onErrorClick);
-    btnError.removeEventListener('click', onErrorClick);
+    buttonError.removeEventListener('click', onErrorClick);
 
     blockError.remove();
   };
 
   /** Добавляет события для блока error */
   var addEventErrorHandler = function () {
-    var btnError = document.querySelector('.error__button');
+    var buttonError = document.querySelector('.error__button');
     document.querySelector('.error').addEventListener('click', onErrorClick);
-    btnError.addEventListener('click', onErrorClick);
+    buttonError.addEventListener('click', onErrorClick);
     document.addEventListener('keydown', onErrorESCKeydown);
   };
 
