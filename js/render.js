@@ -9,6 +9,33 @@
   };
 
   /**
+   * Проверяет объект на пустоту
+   *
+   * @param {object} obj  - проверяемый объект
+   * @return {boolean}
+   */
+  var isEmptyObject = function (obj) {
+    return Object.keys(obj).length === 0;
+  };
+
+  /**
+   * Добавляет события на пин
+   *
+   * @param {object} element - маркер, DOM-элемент
+   * @param {object} mapPin - заполненный пин в Pin
+   */
+  var addingPinListeners = function (element, mapPin) {
+    element.addEventListener('click', function () {
+      element.classList.add('map__pin--active');
+      window.card.renderCard(mapPin);
+    });
+
+    element.addEventListener('blur', function () {
+      element.classList.remove('map__pin--active');
+    });
+  };
+
+  /**
    * возвращает пин как DOM-элемент
    *
    * @param {object} mapPin - заполненный пин в Pin
@@ -25,9 +52,7 @@
     imgPin.src = mapPin.author.avatar;
     imgPin.alt = mapPin.offer.title;
 
-    userPinElement.addEventListener('click', function () {
-      window.card.renderCard(mapPin);
-    });
+    addingPinListeners(userPinElement, mapPin);
 
     return userPinElement;
   };
@@ -50,7 +75,9 @@
     var fragment = document.createDocumentFragment();
     var takeNumber = data.length > MAX_NUMBER_OF_PINS ? MAX_NUMBER_OF_PINS : data.length;
     for (var i = 0; i < takeNumber; i++) {
-      fragment.appendChild(getTemplatePin(data[i]));
+      if ((data[i].offer !== undefined) && !isEmptyObject(data[i].offer)) {
+        fragment.appendChild(getTemplatePin(data[i]));
+      }
     }
     map.appendChild(fragment);
   };

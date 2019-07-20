@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+
   var enumerationMainPin = {
     HALF_WIDTH: 32,
     HEIGHT: 80
@@ -90,7 +91,7 @@
    * Изменяет min для select и устанавливает значение в плейсхолдер
    */
   var onTypeOfHousingChange = function () {
-    var result = window.card.housingType[typeOfHousing.value].price;
+    var result = window.card.housingType[typeOfHousing.value.toUpperCase()].price;
 
     price.min = result;
     price.placeholder = String(price.min);
@@ -102,7 +103,7 @@
    * @param {object} evt
    */
   var saveToServer = function (evt) {
-    window.backend.upload(new FormData(adForm), onSaveHandler, onErrorHandler);
+    window.backend.upload(new FormData(adForm), checkFillin, showError);
     evt.preventDefault();
   };
 
@@ -111,12 +112,12 @@
    *
    * @param {object} responsive - ответ от сервера
    */
-  var onSaveHandler = function (responsive) {
+  var checkFillin = function (responsive) {
     if ((typeof (responsive) === 'object') && (JSON.stringify(responsive).length > 0)) {
       onResetClick();
       showSuccess();
     } else {
-      onErrorHandler('Что-то пошло не так!');
+      showError('Что-то пошло не так!');
     }
   };
 
@@ -125,7 +126,7 @@
    *
    * @param {array} loadPins - содержит массив с информацией о загружаемых пинах
    */
-  var onSuccessHandler = function (loadPins) {
+  var loadSuccess = function (loadPins) {
     pins = loadPins.slice();
   };
 
@@ -171,20 +172,20 @@
   /** Удаляет блок .error и убирает события связанные с ним */
   var onErrorClick = function () {
     var blockError = document.querySelector('.error');
-    var btnError = document.querySelector('.error__button');
+    var buttonError = document.querySelector('.error__button');
 
     document.removeEventListener('keydown', onErrorESCKeydown);
     blockError.removeEventListener('click', onErrorClick);
-    btnError.removeEventListener('click', onErrorClick);
+    buttonError.removeEventListener('click', onErrorClick);
 
     blockError.remove();
   };
 
   /** Добавляет события для блока error */
   var addEventErrorHandler = function () {
-    var btnError = document.querySelector('.error__button');
+    var buttonError = document.querySelector('.error__button');
     document.querySelector('.error').addEventListener('click', onErrorClick);
-    btnError.addEventListener('click', onErrorClick);
+    buttonError.addEventListener('click', onErrorClick);
     document.addEventListener('keydown', onErrorESCKeydown);
   };
 
@@ -193,21 +194,21 @@
    *
    * @param {string} messageError - текст дополнительного сообщения
    */
-  var onErrorHandler = function (messageError) {
+  var showError = function (messageError) {
     var fragment = document.createDocumentFragment();
     var templateError = document.querySelector('#error').content.querySelector('.error');
     var blockError = templateError.cloneNode(true);
     var blockErrorMessage = blockError.querySelector('.error__message');
 
-    var brElem = document.createElement('br');
-    var spanElem = document.createElement('span');
+    var brElement = document.createElement('br');
+    var spanElement = document.createElement('span');
 
-    spanElem.textContent = messageError;
-    spanElem.style.fontSize = '30px';
-    spanElem.style.fontWeight = '500';
+    spanElement.textContent = messageError;
+    spanElement.style.fontSize = '30px';
+    spanElement.style.fontWeight = '500';
 
-    blockErrorMessage.insertAdjacentElement('beforeEnd', brElem);
-    blockErrorMessage.insertAdjacentElement('beforeEnd', spanElem);
+    blockErrorMessage.insertAdjacentElement('beforeEnd', brElement);
+    blockErrorMessage.insertAdjacentElement('beforeEnd', spanElement);
 
     fragment.appendChild(blockError);
     document.querySelector('main').appendChild(fragment);
@@ -220,6 +221,8 @@
    */
   var onFilterChange = function () {
     var sortPins = sortingPins(pins.slice());
+
+    window.card.removeCard();
 
     window.debounce(function () {
       window.renderPin(sortPins);
@@ -309,6 +312,8 @@
     allFilterFields.forEach(function (item) {
       item.addEventListener('change', onFilterChange);
     });
+    zoneAvatarFileChooser.addEventListener('change', window.uploadFiles.uploadAvatar);
+    zonePicturesFileChooser.addEventListener('change', window.uploadFiles.uploadPhoto);
   };
 
   /** Удаляются события */
@@ -323,6 +328,8 @@
     allFilterFields.forEach(function (item) {
       item.removeEventListener('change', onFilterChange);
     });
+    zoneAvatarFileChooser.removeEventListener('change', window.uploadFiles.uploadAvatar);
+    zonePicturesFileChooser.removeEventListener('change', window.uploadFiles.uploadPhoto);
   };
 
   /**
@@ -333,9 +340,24 @@
   var onMapPinMainMousedown = function (evt) {
     evt.preventDefault();
 
+    startCoords.x = evt.clientX;
+    startCoords.y = evt.clientY;
+
+    map.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
+
+  /**
+   * событие перемещения мыши
+   *
+   * @param {object} moveEvt
+   */
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+
     if (!window.utils.isActive) {
       if (!pins.length) {
-        window.backend.load(onSuccessHandler, onErrorHandler);
+        window.backend.load(loadSuccess, showError);
         return;
       }
 
@@ -353,24 +375,7 @@
       onRoomNumberCapacityChange();
 
       adForm.addEventListener('submit', saveToServer);
-
-    } else {
-
-      startCoords.x = evt.clientX;
-      startCoords.y = evt.clientY;
-
-      map.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
     }
-  };
-
-  /**
-   * событие перемещения мыши
-   *
-   * @param {object} moveEvt
-   */
-  var onMouseMove = function (moveEvt) {
-    moveEvt.preventDefault();
 
     var shift = new Coordinate(startCoords.x - moveEvt.clientX, startCoords.y - moveEvt.clientY);
 
@@ -440,6 +445,7 @@
 
       removePin();
       resetMainPinToDefault();
+      window.uploadFiles.resetUploadFiles();
 
       title.value = '';
       price.value = '';
@@ -448,7 +454,7 @@
       timein.selectedIndex = defaultIndexTimein;
       timeout.selectedIndex = defaultIndexTimeout;
       roomNumber.selectedIndex = defaultIndexRoomNumber;
-      address.value = (mapPinMain.offsetLeft) + ', ' + (mapPinMain.offsetTop);
+      address.value = (defaultCoordsPinMain.x + (mapPinMain.firstElementChild.width / 2)) + ', ' + (defaultCoordsPinMain.y + (mapPinMain.firstElementChild.height / 2));
       resetFeatures();
       window.utils.enumeratesArray(itemsAccessibilityControls);
       window.utils.isActiveDisabled();
@@ -523,6 +529,8 @@
   var timeout = adForm.querySelector('#timeout');
   var roomNumber = adForm.querySelector('#room_number');
   var capacity = adForm.querySelector('#capacity');
+  var zoneAvatarFileChooser = document.querySelector('.ad-form__field');
+  var zonePicturesFileChooser = document.querySelector('.ad-form__upload');
   /**
    * значения по умолчанию
    */
@@ -537,11 +545,11 @@
   var defaultIndexType = typeOfHousing.selectedIndex;
   var defaultIndexTimein = timein.selectedIndex;
   var defaultIndexTimeout = timeout.selectedIndex;
-  var pointAxisX = mapPinMain.offsetLeft;
-  var pointAxisY = mapPinMain.offsetTop;
+  var pointAxisX = defaultCoordsPinMain.x + (mapPinMain.firstElementChild.width / 2);
+  var pointAxisY = defaultCoordsPinMain.y + (mapPinMain.firstElementChild.height / 2);
   var pins = [];
 
-  var startCoords = new Coordinate(mapPinMain.offsetLeft, mapPinMain.offsetTop);
+  var startCoords = new Coordinate(pointAxisX, pointAxisY);
 
   if (!window.utils.isActive) {
     address.value = pointAxisX + ', ' + pointAxisY;
@@ -550,6 +558,6 @@
   }
 
   mapPinMain.addEventListener('mousedown', onMapPinMainMousedown);
-  window.backend.load(onSuccessHandler, onErrorHandler);
+  window.backend.load(loadSuccess, showError);
 
 })();
