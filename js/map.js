@@ -200,15 +200,15 @@
     var blockError = templateError.cloneNode(true);
     var blockErrorMessage = blockError.querySelector('.error__message');
 
-    var brElem = document.createElement('br');
-    var spanElem = document.createElement('span');
+    var brElement = document.createElement('br');
+    var spanElement = document.createElement('span');
 
-    spanElem.textContent = messageError;
-    spanElem.style.fontSize = '30px';
-    spanElem.style.fontWeight = '500';
+    spanElement.textContent = messageError;
+    spanElement.style.fontSize = '30px';
+    spanElement.style.fontWeight = '500';
 
-    blockErrorMessage.insertAdjacentElement('beforeEnd', brElem);
-    blockErrorMessage.insertAdjacentElement('beforeEnd', spanElem);
+    blockErrorMessage.insertAdjacentElement('beforeEnd', brElement);
+    blockErrorMessage.insertAdjacentElement('beforeEnd', spanElement);
 
     fragment.appendChild(blockError);
     document.querySelector('main').appendChild(fragment);
