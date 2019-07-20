@@ -2,19 +2,19 @@
 
 (function () {
   var housingType = {
-    bungalo: {
+    BUNGALO: {
       name: 'Бунгало',
       price: 0
     },
-    flat: {
+    FLAT: {
       name: 'Квартира',
       price: 1000
     },
-    house: {
+    HOUSE: {
       name: 'Дом',
       price: 5000
     },
-    palace: {
+    PALACE: {
       name: 'Дворец',
       price: 10000
     }
@@ -26,7 +26,7 @@
    * @return {string}
    */
   var returnTextHousingType = function (type) {
-    return housingType[type].name;
+    return housingType[type.toUpperCase()].name;
   };
 
   var onCardClick = function () {

@@ -91,7 +91,7 @@
    * Изменяет min для select и устанавливает значение в плейсхолдер
    */
   var onTypeOfHousingChange = function () {
-    var result = window.card.housingType[typeOfHousing.value].price;
+    var result = window.card.housingType[typeOfHousing.value.toUpperCase()].price;
 
     price.min = result;
     price.placeholder = String(price.min);
