@@ -19,6 +19,23 @@
   };
 
   /**
+   * Добавляет события на пин
+   *
+   * @param {object} element - маркер, DOM-элемент
+   * @param {object} mapPin - заполненный пин в Pin
+   */
+  var addingPinListeners = function (element, mapPin) {
+    element.addEventListener('click', function () {
+      element.classList.add('map__pin--active');
+      window.card.renderCard(mapPin);
+    });
+
+    element.addEventListener('blur', function () {
+      element.classList.remove('map__pin--active');
+    });
+  };
+
+  /**
    * возвращает пин как DOM-элемент
    *
    * @param {object} mapPin - заполненный пин в Pin
@@ -35,14 +52,7 @@
     imgPin.src = mapPin.author.avatar;
     imgPin.alt = mapPin.offer.title;
 
-    userPinElement.addEventListener('click', function () {
-      userPinElement.classList.add('map__pin--active');
-      window.card.renderCard(mapPin);
-    });
-
-    userPinElement.addEventListener('blur', function () {
-      userPinElement.classList.remove('map__pin--active');
-    });
+    addingPinListeners(userPinElement, mapPin);
 
     return userPinElement;
   };

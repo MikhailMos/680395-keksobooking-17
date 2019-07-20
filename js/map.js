@@ -222,6 +222,8 @@
   var onFilterChange = function () {
     var sortPins = sortingPins(pins.slice());
 
+    window.card.removeCard();
+
     window.debounce(function () {
       window.renderPin(sortPins);
     });

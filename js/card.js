@@ -99,6 +99,17 @@
   };
 
   /**
+   * Удаляет показанную карточку объявления
+   */
+  var removeCard = function () {
+    var isPopup = document.querySelector('.map__card');
+
+    if (isPopup) {
+      document.querySelector('.map').removeChild(isPopup);
+    }
+  };
+
+  /**
    * Отрисовывает модальное окно с информации об объявлении
    * @param {object} dataPin - данные об объявлении
    */
@@ -117,11 +128,8 @@
     var cardDescription = card.querySelector('.popup__description');
     var cardAvatar = card.querySelector('.popup__avatar');
     var popupClose = card.querySelector('.popup__close');
-    var isPopup = document.querySelector('.map__card');
 
-    if (isPopup) {
-      document.querySelector('.map').removeChild(isPopup);
-    }
+    removeCard();
 
     cardTitle.textContent = offerPin.title;
     cardTextAddress.textContent = offerPin.address;
@@ -142,6 +150,7 @@
 
   window.card = {
     renderCard: renderCard,
+    removeCard: removeCard,
     housingType: housingType
   };
 
