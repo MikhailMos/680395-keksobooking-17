@@ -19,7 +19,7 @@
    */
   var isEnterEvent = function (evt, action) {
     if (evt.keyCode === window.const.keyCode.ENTER) {
-      action(evt);
+      action();
     }
   };
 
