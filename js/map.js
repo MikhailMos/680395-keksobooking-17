@@ -290,11 +290,7 @@
    */
   var getFilterFeatures = function (dataPinFeatures) {
     inputsFeaturesFilter.forEach(function (item) {
-      if (item.checked) {
-        resFilterFeatures[item.value] = (dataPinFeatures.indexOf(item.value) !== -1) ? true : false;
-      } else {
-        resFilterFeatures[item.value] = true;
-      }
+      resFilterFeatures[item.value] = item.checked ? (dataPinFeatures.indexOf(item.value) !== -1) : true;
     });
   };
 
