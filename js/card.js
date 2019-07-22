@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  var housingType = {
+  var HousingType = {
     BUNGALO: {
       name: 'Бунгало',
       price: 0
@@ -26,7 +26,7 @@
    * @return {string}
    */
   var returnTextHousingType = function (type) {
-    return housingType[type.toUpperCase()].name;
+    return HousingType[type.toUpperCase()].name;
   };
 
   var onCardClick = function () {
@@ -37,7 +37,7 @@
   };
 
   var onCardEscPress = function (evt) {
-    if (evt.keyCode === window.const.keyCode.ESC) {
+    if (evt.keyCode === window.const.KeyCode.ESC) {
       onCardClick();
       document.removeEventListener('keydown', onCardEscPress);
     }
@@ -101,7 +101,7 @@
   /**
    * Удаляет показанную карточку объявления
    */
-  var removeCard = function () {
+  var remove = function () {
     var isPopup = document.querySelector('.map__card');
 
     if (isPopup) {
@@ -113,7 +113,7 @@
    * Отрисовывает модальное окно с информации об объявлении
    * @param {object} dataPin - данные об объявлении
    */
-  var renderCard = function (dataPin) {
+  var render = function (dataPin) {
     var offerPin = dataPin.offer;
     var card = templateCard.cloneNode(true);
     var cardTitle = card.querySelector('.popup__title');
@@ -129,7 +129,7 @@
     var cardAvatar = card.querySelector('.popup__avatar');
     var popupClose = card.querySelector('.popup__close');
 
-    removeCard();
+    remove();
 
     cardTitle.textContent = offerPin.title;
     cardTextAddress.textContent = offerPin.address;
@@ -149,9 +149,9 @@
   };
 
   window.card = {
-    renderCard: renderCard,
-    removeCard: removeCard,
-    housingType: housingType
+    render: render,
+    remove: remove,
+    HousingType: HousingType
   };
 
   var templateCard = document.querySelector('#card').content.querySelector('.map__card');

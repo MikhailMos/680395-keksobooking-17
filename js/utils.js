@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+  var DEBOUNCE_INTERVAL = 500;
 
   /**
    * Присваивает true/false для свойства элемента disabled
@@ -18,7 +19,7 @@
    * @param {function} action - импортируемая функция
    */
   var isEnterEvent = function (evt, action) {
-    if (evt.keyCode === window.const.keyCode.ENTER) {
+    if (evt.keyCode === window.const.KeyCode.ENTER) {
       action();
     }
   };
@@ -30,7 +31,7 @@
    * @param {function} action - импортируемая функция
    */
   var isESCEvent = function (evt, action) {
-    if (evt.keyCode === window.const.keyCode.ESC) {
+    if (evt.keyCode === window.const.KeyCode.ESC) {
       action();
     }
   };
@@ -52,14 +53,23 @@
     window.utils.isActive = false;
   };
 
+  var debounce = function (cb) {
+    if (lastTimeout) {
+      window.clearTimeout(lastTimeout);
+    }
+    lastTimeout = window.setTimeout(cb, DEBOUNCE_INTERVAL);
+  };
+
   var isActive = false;
+  var lastTimeout = null;
 
   window.utils = {
     isActive: isActive,
     isActiveEnabled: isActiveEnabled,
     isActiveDisabled: isActiveDisabled,
-    enumeratesArray: enumeratesArray,
     isEnterEvent: isEnterEvent,
-    isESCEvent: isESCEvent
+    isESCEvent: isESCEvent,
+    enumeratesArray: enumeratesArray,
+    debounce: debounce
   };
 })();

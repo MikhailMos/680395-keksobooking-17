@@ -44,7 +44,7 @@
     previewFile.appendChild(templateImg);
   };
 
-  var resetUploadFiles = function () {
+  var reset = function () {
     var previewFiles = photoContainer.querySelectorAll('.ad-form__photo');
 
     previewAvatar.src = DEFAULT_AVATAR_SRC;
@@ -69,6 +69,6 @@
   window.uploadFiles = {
     uploadAvatar: uploadAvatar,
     uploadPhoto: uploadPhoto,
-    resetUploadFiles: resetUploadFiles
+    reset: reset
   };
 })();
