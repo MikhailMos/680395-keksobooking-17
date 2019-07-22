@@ -1,19 +1,19 @@
 'use strict';
 
 (function () {
-  var keyCode = {
+  var KeyCode = {
     ENTER: 13,
     ESC: 27
   };
 
-  var mapRestriction = {
+  var MapRestriction = {
     Y_MIN: 130,
     Y_MAX: 630
   };
 
   window.const = {
-    keyCode: keyCode,
-    mapRestriction: mapRestriction,
+    KeyCode: KeyCode,
+    MapRestriction: MapRestriction,
     ARR_LENGTH: 8
   };
 })();

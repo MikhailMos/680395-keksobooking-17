@@ -2,7 +2,7 @@
 
 (function () {
 
-  var enumerationMainPin = {
+  var EnumerationMainPin = {
     HALF_WIDTH: 32,
     HEIGHT: 80
   };
@@ -91,7 +91,7 @@
    * Изменяет min для select и устанавливает значение в плейсхолдер
    */
   var onTypeOfHousingChange = function () {
-    var result = window.card.housingType[typeOfHousing.value.toUpperCase()].price;
+    var result = window.card.HousingType[typeOfHousing.value.toUpperCase()].price;
 
     price.min = result;
     price.placeholder = String(price.min);
@@ -122,12 +122,26 @@
   };
 
   /**
+   * Проверяет объект на пустоту
+   *
+   * @param {object} obj  - проверяемый объект
+   * @return {boolean}
+   */
+  var isEmptyObject = function (obj) {
+    return Object.keys(obj).length === 0;
+  };
+
+  /**
    * Получает данные с сервера при успешной загрузке
    *
    * @param {array} loadPins - содержит массив с информацией о загружаемых пинах
    */
   var loadSuccess = function (loadPins) {
-    pins = loadPins.slice();
+    pins = loadPins
+            .slice()
+            .filter(function (item) {
+              return (item.offer !== undefined) && !isEmptyObject(item.offer);
+            });
   };
 
   /** Выводит сообщение об успешной отправке */
@@ -222,9 +236,9 @@
   var onFilterChange = function () {
     var sortPins = sortingPins(pins.slice());
 
-    window.card.removeCard();
+    window.card.remove();
 
-    window.debounce(function () {
+    window.utils.debounce(function () {
       window.renderPin(sortPins);
     });
   };
@@ -277,7 +291,7 @@
   var getFilterFeatures = function (dataPinFeatures) {
     inputsFeaturesFilter.forEach(function (item) {
       if (item.checked) {
-        resFilterFeatures[item.value] = (dataPinFeatures.indexOf(item.value) === -1) ? false : true;
+        resFilterFeatures[item.value] = (dataPinFeatures.indexOf(item.value) !== -1) ? true : false;
       } else {
         resFilterFeatures[item.value] = true;
       }
@@ -368,8 +382,8 @@
       adForm.classList.remove('ad-form--disabled');
       window.utils.enumeratesArray(itemsAccessibilityControls);
 
-      pointAxisX = (mapPinMain.offsetLeft + enumerationMainPin.HALF_WIDTH);
-      pointAxisY = (mapPinMain.offsetTop + enumerationMainPin.HEIGHT);
+      pointAxisX = (mapPinMain.offsetLeft + EnumerationMainPin.HALF_WIDTH);
+      pointAxisY = (mapPinMain.offsetTop + EnumerationMainPin.HEIGHT);
       address.value = pointAxisX + ', ' + pointAxisY;
       addEventListenerFunctions();
       onRoomNumberCapacityChange();
@@ -384,8 +398,8 @@
 
     mapPinMain.style.top = setContrainsY(mapPinMain.offsetTop - shift.y) + 'px';
     mapPinMain.style.left = setContrainsX(mapPinMain.offsetLeft - shift.x) + 'px';
-    pointAxisX = (mapPinMain.offsetLeft + enumerationMainPin.HALF_WIDTH);
-    pointAxisY = (mapPinMain.offsetTop + enumerationMainPin.HEIGHT);
+    pointAxisX = (mapPinMain.offsetLeft + EnumerationMainPin.HALF_WIDTH);
+    pointAxisY = (mapPinMain.offsetTop + EnumerationMainPin.HEIGHT);
     address.value = pointAxisX + ', ' + pointAxisY;
   };
 
@@ -445,7 +459,7 @@
 
       removePin();
       resetMainPinToDefault();
-      window.uploadFiles.resetUploadFiles();
+      window.uploadFiles.reset();
 
       title.value = '';
       price.value = '';
@@ -535,10 +549,10 @@
    * значения по умолчанию
    */
   var itemsAccessibilityControls = getArrElements(selectsMapFilters, fieldsetsMapFilters, fieldsetsAdForm);
-  var contrains = new Rect(window.const.mapRestriction.Y_MIN - enumerationMainPin.HEIGHT,
-      map.offsetWidth - enumerationMainPin.HALF_WIDTH,
-      window.const.mapRestriction.Y_MAX,
-      -enumerationMainPin.HALF_WIDTH);
+  var contrains = new Rect(window.const.MapRestriction.Y_MIN - EnumerationMainPin.HEIGHT,
+      map.offsetWidth - EnumerationMainPin.HALF_WIDTH,
+      window.const.MapRestriction.Y_MAX,
+      -EnumerationMainPin.HALF_WIDTH);
   var defaultCoordsPinMain = new Coordinate(mapPinMain.offsetLeft, mapPinMain.offsetTop);
   var defaultIndexRoomNumber = roomNumber.selectedIndex;
   var defaultIndexCapcity = capacity.selectedIndex;

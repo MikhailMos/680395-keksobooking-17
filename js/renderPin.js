@@ -3,19 +3,9 @@
 (function () {
   var MAX_NUMBER_OF_PINS = 5;
 
-  var enumerationMapPin = {
+  var EnumerationPin = {
     HALF_WIDTH: 25,
     HEIGHT: 70
-  };
-
-  /**
-   * Проверяет объект на пустоту
-   *
-   * @param {object} obj  - проверяемый объект
-   * @return {boolean}
-   */
-  var isEmptyObject = function (obj) {
-    return Object.keys(obj).length === 0;
   };
 
   /**
@@ -27,7 +17,7 @@
   var addingPinListeners = function (element, mapPin) {
     element.addEventListener('click', function () {
       element.classList.add('map__pin--active');
-      window.card.renderCard(mapPin);
+      window.card.render(mapPin);
     });
 
     element.addEventListener('blur', function () {
@@ -45,8 +35,8 @@
     var userPinElement = userPin.cloneNode(true);
     var imgPin = userPinElement.querySelector('img');
 
-    userPinElement.style.left = (mapPin.location.x - enumerationMapPin.HALF_WIDTH) + 'px';
-    userPinElement.style.top = (mapPin.location.y - enumerationMapPin.HEIGHT) + 'px';
+    userPinElement.style.left = (mapPin.location.x - EnumerationPin.HALF_WIDTH) + 'px';
+    userPinElement.style.top = (mapPin.location.y - EnumerationPin.HEIGHT) + 'px';
     userPinElement.value = String(mapPin.location.x) + ', ' + String(mapPin.location.y);
 
     imgPin.src = mapPin.author.avatar;
@@ -73,12 +63,10 @@
     }
 
     var fragment = document.createDocumentFragment();
-    var takeNumber = data.length > MAX_NUMBER_OF_PINS ? MAX_NUMBER_OF_PINS : data.length;
-    for (var i = 0; i < takeNumber; i++) {
-      if ((data[i].offer !== undefined) && !isEmptyObject(data[i].offer)) {
-        fragment.appendChild(getTemplatePin(data[i]));
-      }
-    }
+
+    data.slice(0, MAX_NUMBER_OF_PINS).forEach(function (item) {
+      fragment.appendChild(getTemplatePin(item));
+    });
     map.appendChild(fragment);
   };
 
